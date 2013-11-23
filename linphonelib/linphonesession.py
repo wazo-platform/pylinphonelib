@@ -45,7 +45,9 @@ sip_port=%(port)s
                 raise LinphoneException('Failed to terminate the linphone process')
 
     def execute(self, cmd):
-        # TODO start the process if it's not started already
+        if not self._process:
+            self._start()
+
         cmd.execute(self._process)
 
     def _start(self):

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import linphonelib
+import pexpect
 
 
 class _BaseCommand(object):
@@ -24,9 +25,20 @@ class RegisterCommand(_BaseCommand):
         )
 
     def execute(self, process):
-        process.sendline(self._build_command_string())
+        cmd_string = self._build_command_string(self._uname, self._passwd, self._hostname)
+        print 'sending command:', cmd_string
+        process.sendline(cmd_string)
         success = 'Registration on sip:%s successful.' % self._hostname
-        fail = 'Registration on sip:%s failed:' % self._hostname
-        result = process.expect([fail, success])
+        fail = 'Registration on sip:%s failed:.*' % self._hostname
+        result = process.expect([fail, success, pexpect.EOF, pexpect.TIMEOUT])
         if result == 0:
             raise linphonelib.LinphoneException('Registration failed')
+        elif result == 2:
+            raise linphonelib.LinphoneException('Registration returned no result')
+        elif result == 3:
+            raise linphonelib.LinphoneException('pexpect timeout on registration')
+
+    @staticmethod
+    def _build_command_string(uname, passwd, hostname):
+        cmd_string = 'register sip:%(name)s@%(host)s %(host)s %(passwd)s'
+        return cmd_string % {'name': uname, 'passwd': passwd, 'host': hostname}
