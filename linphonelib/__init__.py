@@ -2,3 +2,4 @@
 
 from linphonelib.linphonesession import Session
 from linphonelib.linphonesession import LinphoneException
+from linphonelib.linphonesession import registering

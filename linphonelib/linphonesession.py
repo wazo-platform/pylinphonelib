@@ -4,6 +4,7 @@ import os
 import pexpect
 import tempfile
 
+from contextlib import contextmanager
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
 
@@ -19,6 +20,9 @@ class Session(object):
         self._secret = secret
         self._hostname = hostname
         self._linphone_shell = _Shell(local_port)
+
+    def __str__(self):
+        return 'Session %(_uname)s@%(_hostname)s' % self.__dict__
 
     def register(self):
         cmd = RegisterCommand(self._uname, self._secret, self._hostname)
@@ -69,3 +73,12 @@ sip_port=%(port)s
             f.write(content)
 
         return self._config_filename
+
+
+@contextmanager
+def registering(session):
+    session.register()
+    try:
+        yield session
+    finally:
+        session.unregister()
