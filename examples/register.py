@@ -3,6 +3,7 @@
 import sys
 
 from linphonelib import Session
+from linphonelib import LinphoneException
 
 
 def usage():
@@ -14,7 +15,12 @@ Usage:
 
 def run(uname, secret, hostname, port):
     s = Session(uname, secret, hostname, port)
-    s.register()
+    try:
+        s.register()
+    except LinphoneException:
+        print 'Failed to register'
+        return
+    s.unregister()
 
 
 def main():

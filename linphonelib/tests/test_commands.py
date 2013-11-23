@@ -5,6 +5,7 @@ import pexpect
 from hamcrest import assert_that
 from hamcrest import equal_to
 from linphonelib.commands import RegisterCommand
+from linphonelib.commands import UnregisterCommand
 from linphonelib import LinphoneException
 from mock import Mock
 from mock import sentinel
@@ -30,7 +31,7 @@ class TestRegisterCommand(TestCase):
     def test_execute_failure(self):
         c = RegisterCommand(self._uname, self._passwd, self._hostname)
         c._build_command_string = Mock(return_value=sentinel.command_string)
-        self._child.expect.return_value = 0
+        self._child.expect.return_value = 1
 
         self.assertRaises(LinphoneException, c.execute, self._child)
 
@@ -38,3 +39,30 @@ class TestRegisterCommand(TestCase):
         command_string = RegisterCommand._build_command_string('abc', '5eCr37', '127.0.0.1')
 
         assert_that(command_string, equal_to('register sip:abc@127.0.0.1 127.0.0.1 5eCr37'))
+
+
+class TestUnregisterCommand(TestCase):
+
+    def setUp(self):
+        self._child = Mock(pexpect.spawn)
+
+    def test_execute_success(self):
+        c = UnregisterCommand()
+        c._build_command_string = Mock(return_value=sentinel.command_string)
+        self._child.expect.return_value = 0
+
+        c.execute(self._child)
+
+        self._child.sendline.assert_called_once_with(sentinel.command_string)
+
+    def test_execute_failure(self):
+        c = UnregisterCommand()
+        c._build_command_string = Mock(return_value=sentinel.command_string)
+        self._child.expect.return_value = 1
+
+        self.assertRaises(LinphoneException, c.execute, self._child)
+
+    def test_build_command_string(self):
+        command = UnregisterCommand._build_command_string()
+
+        assert_that(command, equal_to('unregister'))

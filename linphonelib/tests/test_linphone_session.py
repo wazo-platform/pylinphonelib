@@ -6,6 +6,7 @@ from hamcrest import assert_that
 from hamcrest import equal_to
 from linphonelib.commands import _BaseCommand
 from linphonelib.commands import RegisterCommand
+from linphonelib.commands import UnregisterCommand
 from linphonelib.linphonesession import _Shell
 from linphonelib import Session
 from mock import MagicMock
@@ -15,18 +16,24 @@ from mock import sentinel
 from unittest import TestCase
 
 
-class TestLinphoneLib(TestCase):
+class TestLinphoneSession(TestCase):
+
+    def setUp(self):
+        self._name, self._passwd, self._hostname = 'abc', 'secret', '127.0.0.1'
+        self._s = Session(self._name, self._passwd, self._hostname, sentinel.local_port)
+        self._shell = self._s._linphone_shell = Mock(_Shell)
 
     def test_register(self):
-        uname, passwd, hostname = 'abc', 'secret', '127.0.0.1'
-        p = Session(uname, passwd, hostname, sentinel.local_port)
-        p._linphone_shell = Mock(_Shell)
+        self._s.register()
 
-        p.register()
-
-        p._linphone_shell.execute.assert_called_once_with(
-            RegisterCommand(uname, passwd, hostname)
+        self._shell.execute.assert_called_once_with(
+            RegisterCommand(self._name, self._passwd, self._hostname)
         )
+
+    def test_unregister(self):
+        self._s.unregister()
+
+        self._shell.execute.assert_called_once_with(UnregisterCommand())
 
 
 class TestShell(TestCase):

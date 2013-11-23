@@ -5,6 +5,7 @@ import pexpect
 import tempfile
 
 from linphonelib.commands import RegisterCommand
+from linphonelib.commands import UnregisterCommand
 
 
 class LinphoneException(Exception):
@@ -21,6 +22,10 @@ class Session(object):
 
     def register(self):
         cmd = RegisterCommand(self._uname, self._secret, self._hostname)
+        self._linphone_shell.execute(cmd)
+
+    def unregister(self):
+        cmd = UnregisterCommand()
         self._linphone_shell.execute(cmd)
 
 
