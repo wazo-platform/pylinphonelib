@@ -4,7 +4,7 @@ import os
 import pexpect
 import tempfile
 
-from commands import RegisterCommand
+from linphonelib.commands import RegisterCommand
 
 
 class LinphoneException(Exception):
@@ -39,11 +39,13 @@ sip_port=%(port)s
     def __del__(self):
         if os.path.exists(self._config_filename):
             os.unlink(self._config_filename)
+
         if self._process:
             if not self._process.terminate(force=True):
                 raise LinphoneException('Failed to terminate the linphone process')
 
     def execute(self, cmd):
+        # TODO start the process if it's not started already
         cmd.execute(self._process)
 
     def _start(self):

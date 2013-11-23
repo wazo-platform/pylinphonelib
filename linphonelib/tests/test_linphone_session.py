@@ -6,7 +6,7 @@ from hamcrest import assert_that
 from hamcrest import equal_to
 from linphonelib.commands import _BaseCommand
 from linphonelib.commands import RegisterCommand
-from linphonelib.linphonelib import _Shell
+from linphonelib.linphonesession import _Shell
 from linphonelib import Session
 from mock import MagicMock
 from mock import Mock
