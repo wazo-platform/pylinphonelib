@@ -30,7 +30,7 @@ class TestCallCommand(TestCase):
     def test_execute_failure(self):
         c = CallCommand('1999')
         c._build_command_string = Mock(return_value=sentinel.command_string)
-        self._child.expect.return_value = 1
+        self._child.expect.return_value = 2
 
         self.assertRaises(LinphoneException, c.execute, self._child)
 

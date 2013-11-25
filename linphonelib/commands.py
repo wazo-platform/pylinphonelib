@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import linphonelib
 import pexpect
+
+from linphonelib.exceptions import ExtensionNotFoundException
+from linphonelib.exceptions import LinphoneException
 
 
 class _BaseCommand(object):
@@ -21,11 +23,17 @@ class CallCommand(_BaseCommand):
     def execute(self, process):
         cmd_string = self._build_command_string(self._exten)
         process.sendline(cmd_string)
-        success = 'Remote ringing.'
+        success = [
+            'Remote ringing.',
+            'Call answered by <sip:.*>.',
+        ]
         fail = 'Not Found'
-        result = process.expect([success, fail, pexpect.EOF, pexpect.TIMEOUT])
-        if result != 0:
-            raise linphonelib.LinphoneException('Failed to call %s' % self._exten)
+        result = process.expect([success[0], success[1], fail, pexpect.EOF, pexpect.TIMEOUT])
+        print 'call result is %s' % result
+        if result == 2:
+            raise ExtensionNotFoundException('Failed to call %s' % self._exten)
+        elif result > len(success):
+            raise LinphoneException('Failed to call %s' % self._exten)
 
     @staticmethod
     def _build_command_string(exten):
@@ -53,11 +61,11 @@ class RegisterCommand(_BaseCommand):
         fail = 'Registration on sip:%s failed:.*' % self._hostname
         result = process.expect([success, fail, pexpect.EOF, pexpect.TIMEOUT])
         if result == 1:
-            raise linphonelib.LinphoneException('Registration failed')
+            raise LinphoneException('Registration failed')
         elif result == 2:
-            raise linphonelib.LinphoneException('Registration returned no result')
+            raise LinphoneException('Registration returned no result')
         elif result == 3:
-            raise linphonelib.LinphoneException('pexpect timeout on registration')
+            raise LinphoneException('pexpect timeout on registration')
 
     @staticmethod
     def _build_command_string(uname, passwd, hostname):
@@ -77,7 +85,7 @@ class UnregisterCommand(_BaseCommand):
         fail = 'unregistered'
         result = process.expect([success, fail, pexpect.EOF, pexpect.TIMEOUT])
         if result != 0:
-            raise linphonelib.LinphoneException('Unregister failed')
+            raise LinphoneException('Unregister failed')
 
     @staticmethod
     def _build_command_string():
