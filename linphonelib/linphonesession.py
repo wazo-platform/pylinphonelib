@@ -9,10 +9,7 @@ from functools import wraps
 from linphonelib.commands import CallCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
-
-
-class LinphoneException(Exception):
-    pass
+from linphonelib.exceptions import LinphoneException
 
 
 def _execute(f):
