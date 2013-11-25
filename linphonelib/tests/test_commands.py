@@ -4,12 +4,40 @@ import pexpect
 
 from hamcrest import assert_that
 from hamcrest import equal_to
+from linphonelib.commands import CallCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
 from linphonelib import LinphoneException
 from mock import Mock
 from mock import sentinel
 from unittest import TestCase
+
+
+class TestCallCommand(TestCase):
+
+    def setUp(self):
+        self._child = Mock(pexpect.spawn)
+
+    def test_execute_success(self):
+        c = CallCommand(sentinel.exten)
+        c._build_command_string = Mock(return_value=sentinel.command_string)
+        self._child.expect.return_value = 0
+
+        c.execute(self._child)
+
+        self._child.sendline.assert_called_once_with(sentinel.command_string)
+
+    def test_execute_failure(self):
+        c = CallCommand('1999')
+        c._build_command_string = Mock(return_value=sentinel.command_string)
+        self._child.expect.return_value = 1
+
+        self.assertRaises(LinphoneException, c.execute, self._child)
+
+    def test_build_command_string(self):
+        result = CallCommand._build_command_string('1001')
+
+        assert_that(result, equal_to('call 1001'))
 
 
 class TestRegisterCommand(TestCase):

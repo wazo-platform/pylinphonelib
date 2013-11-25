@@ -16,6 +16,7 @@ Usage:
 def run(uname, secret, hostname, port):
     with registering(Session(uname, secret, hostname, port)) as s:
         print 'registered', s
+        s.call('1001')
 
 
 def main():

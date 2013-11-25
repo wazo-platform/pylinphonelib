@@ -10,6 +10,28 @@ class _BaseCommand(object):
         raise NotImplementedError('execute')
 
 
+class CallCommand(_BaseCommand):
+
+    def __init__(self, exten):
+        self._exten = exten
+
+    def __eq__(self, other):
+        return self._exten == other._exten
+
+    def execute(self, process):
+        cmd_string = self._build_command_string(self._exten)
+        process.sendline(cmd_string)
+        success = 'Remote ringing.'
+        fail = 'Not Found'
+        result = process.expect([success, fail, pexpect.EOF, pexpect.TIMEOUT])
+        if result != 0:
+            raise linphonelib.LinphoneException('Failed to call %s' % self._exten)
+
+    @staticmethod
+    def _build_command_string(exten):
+        return 'call %s' % exten
+
+
 class RegisterCommand(_BaseCommand):
 
     def __init__(self, uname, passwd, hostname):
