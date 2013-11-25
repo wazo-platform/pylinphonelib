@@ -5,6 +5,7 @@ import pexpect
 import tempfile
 
 from contextlib import contextmanager
+from functools import wraps
 from linphonelib.commands import CallCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
@@ -12,6 +13,13 @@ from linphonelib.commands import UnregisterCommand
 
 class LinphoneException(Exception):
     pass
+
+
+def _execute(f):
+    @wraps(f)
+    def func(self, *args):
+        return self._linphone_shell.execute(f(self, *args))
+    return func
 
 
 class Session(object):
@@ -25,17 +33,17 @@ class Session(object):
     def __str__(self):
         return 'Session %(_uname)s@%(_hostname)s' % self.__dict__
 
+    @_execute
     def call(self, exten):
-        cmd = CallCommand(exten)
-        self._linphone_shell.execute(cmd)
+        return CallCommand(exten)
 
+    @_execute
     def register(self):
-        cmd = RegisterCommand(self._uname, self._secret, self._hostname)
-        self._linphone_shell.execute(cmd)
+        return RegisterCommand(self._uname, self._secret, self._hostname)
 
+    @_execute
     def unregister(self):
-        cmd = UnregisterCommand()
-        self._linphone_shell.execute(cmd)
+        return UnregisterCommand()
 
 
 class _Shell(object):
