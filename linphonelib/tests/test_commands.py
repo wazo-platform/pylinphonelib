@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import pexpect
-
 from hamcrest import assert_that
 from hamcrest import equal_to
 from linphonelib.commands import AnswerCommand
@@ -9,7 +7,6 @@ from linphonelib.commands import CallCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
 from linphonelib import LinphoneException
-from mock import Mock
 from mock import sentinel
 from unittest import TestCase
 
