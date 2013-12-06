@@ -10,7 +10,7 @@ from setuptools import setup
 setup(
     name='pylinphonelib',
     version='0.0',
-    licence='BSD',
+    license='BSD',
     author='Pascal Cadotte Michaud',
     author_email='pascal.cadotte@gmail.com',
     description='A library to drive linphonec',
