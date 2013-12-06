@@ -6,6 +6,7 @@ import tempfile
 
 from contextlib import contextmanager
 from functools import wraps
+from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
@@ -29,6 +30,10 @@ class Session(object):
 
     def __str__(self):
         return 'Session %(_uname)s@%(_hostname)s' % self.__dict__
+
+    @_execute
+    def answer(self):
+        return AnswerCommand()
 
     @_execute
     def call(self, exten):
