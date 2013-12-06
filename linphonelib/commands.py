@@ -43,30 +43,26 @@ class AnswerCommand(_BaseCommand):
 
 class CallCommand(_BaseCommand):
 
+    _successes = [
+        'Remote ringing.',
+        'Call answered by <sip:.*>.',
+    ]
+    _fails = ['Not Found']
+
     def __init__(self, exten):
         self._exten = exten
 
     def __eq__(self, other):
         return self._exten == other._exten
 
-    def execute(self, process):
-        cmd_string = self._build_command_string(self._exten)
-        process.sendline(cmd_string)
-        success = [
-            'Remote ringing.',
-            'Call answered by <sip:.*>.',
-        ]
-        fail = 'Not Found'
-        result = process.expect([success[0], success[1], fail, pexpect.EOF, pexpect.TIMEOUT])
-        print 'call result is %s' % result
+    def _handle_result(self, result):
         if result == 2:
             raise ExtensionNotFoundException('Failed to call %s' % self._exten)
-        elif result > len(success):
+        elif result > len(self._successes):
             raise LinphoneException('Failed to call %s' % self._exten)
 
-    @staticmethod
-    def _build_command_string(exten):
-        return 'call %s' % exten
+    def _build_command_string(self):
+        return 'call %s' % self._exten
 
 
 class RegisterCommand(_BaseCommand):

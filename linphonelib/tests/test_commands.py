@@ -16,18 +16,6 @@ from unittest import TestCase
 
 class TestAnswerCommand(TestCase):
 
-    def setUp(self):
-        self._child = Mock(pexpect.spawn)
-
-    def test_execute_success(self):
-        c = AnswerCommand()
-        c._build_command_string = Mock(return_value=sentinel.command_string)
-        self._child.expect.return_value = 0
-
-        c.execute(self._child)
-
-        self._child.sendline.assert_called_once_with(sentinel.command_string)
-
     def test_handle_result_no_call(self):
         c = AnswerCommand()
         result_index = c._param_list().index('There are no calls to answer.')
@@ -45,24 +33,14 @@ class TestCallCommand(TestCase):
     def setUp(self):
         self._child = Mock(pexpect.spawn)
 
-    def test_execute_success(self):
+    def test_handle_result_not_found(self):
         c = CallCommand(sentinel.exten)
-        c._build_command_string = Mock(return_value=sentinel.command_string)
-        self._child.expect.return_value = 0
+        result_index = c._param_list().index('Not Found')
 
-        c.execute(self._child)
-
-        self._child.sendline.assert_called_once_with(sentinel.command_string)
-
-    def test_execute_failure(self):
-        c = CallCommand('1999')
-        c._build_command_string = Mock(return_value=sentinel.command_string)
-        self._child.expect.return_value = 2
-
-        self.assertRaises(LinphoneException, c.execute, self._child)
+        self.assertRaises(LinphoneException, c._handle_result, result_index)
 
     def test_build_command_string(self):
-        result = CallCommand._build_command_string('1001')
+        result = CallCommand('1001')._build_command_string()
 
         assert_that(result, equal_to('call 1001'))
 
