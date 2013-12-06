@@ -5,6 +5,7 @@ import pexpect
 from hamcrest import assert_that
 from hamcrest import equal_to
 from linphonelib.commands import _BaseCommand
+from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
@@ -23,6 +24,11 @@ class TestLinphoneSession(TestCase):
         self._name, self._passwd, self._hostname = 'abc', 'secret', '127.0.0.1'
         self._s = Session(self._name, self._passwd, self._hostname, sentinel.local_port)
         self._shell = self._s._linphone_shell = Mock(_Shell)
+
+    def test_answer(self):
+        self._s.answer()
+
+        self._shell.execute.assert_called_once_with(AnswerCommand())
 
     def test_call(self):
         self._s.call(sentinel.exten)

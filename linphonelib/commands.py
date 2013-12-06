@@ -31,6 +31,9 @@ class AnswerCommand(_BaseCommand):
     _successes = ['Call \d+ with .* connected.']
     _fails = ['There are no calls to answer.']
 
+    def __eq__(self, other):
+        return type(self) == type(other)
+
     def _handle_result(self, result):
         if result >= len(self._successes):
             print 'throw'
