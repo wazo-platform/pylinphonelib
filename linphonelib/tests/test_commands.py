@@ -4,6 +4,7 @@ from hamcrest import assert_that
 from hamcrest import equal_to
 from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
+from linphonelib.commands import HangupCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
 from linphonelib import LinphoneException
@@ -37,6 +38,20 @@ class TestCallCommand(TestCase):
         result = CallCommand('1001')._build_command_string()
 
         assert_that(result, equal_to('call 1001'))
+
+
+class TestHangupCommand(TestCase):
+
+    def test_build_command_stirng(self):
+        result = HangupCommand()._build_command_string()
+
+        assert_that(result, equal_to('terminate'))
+
+    def test_handle_result_no_call(self):
+        c = HangupCommand()
+        result_index = c._param_list().index('No active calls')
+
+        self.assertRaises(LinphoneException, c._handle_result, result_index)
 
 
 class TestRegisterCommand(TestCase):

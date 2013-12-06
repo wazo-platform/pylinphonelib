@@ -7,6 +7,7 @@ from hamcrest import equal_to
 from linphonelib.commands import _BaseCommand
 from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
+from linphonelib.commands import HangupCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
 from linphonelib.linphonesession import _Shell
@@ -36,6 +37,11 @@ class TestLinphoneSession(TestCase):
         self._shell.execute.assert_called_once_with(
             CallCommand(sentinel.exten)
         )
+
+    def test_hangup(self):
+        self._s.hangup()
+
+        self._shell.execute.assert_called_once_with(HangupCommand())
 
     def test_register(self):
         self._s.register()

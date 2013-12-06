@@ -68,6 +68,22 @@ class CallCommand(_BaseCommand):
         return 'call %s' % self._exten
 
 
+class HangupCommand(_BaseCommand):
+
+    _successes = ['Call ended']
+    _fails = ['No active calls']
+
+    def __eq__(self, other):
+        return type(self) == type(other)
+
+    def _build_command_string(self):
+        return 'terminate'
+
+    def _handle_result(self, result):
+        if result >= len(self._successes):
+            raise LinphoneException('Hangup failed')
+
+
 class RegisterCommand(_BaseCommand):
 
     _successes = ['Registration on sip:.* successful.']
