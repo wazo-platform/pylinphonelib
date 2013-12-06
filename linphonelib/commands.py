@@ -67,6 +67,9 @@ class CallCommand(_BaseCommand):
 
 class RegisterCommand(_BaseCommand):
 
+    _successes = ['Registration on sip:.* successful.']
+    _fails = ['Registration on sip:.* failed:.*']
+
     def __init__(self, uname, passwd, hostname):
         self._uname = uname
         self._passwd = passwd
@@ -79,12 +82,7 @@ class RegisterCommand(_BaseCommand):
             and self._hostname == other._hostname
         )
 
-    def execute(self, process):
-        cmd_string = self._build_command_string(self._uname, self._passwd, self._hostname)
-        process.sendline(cmd_string)
-        success = 'Registration on sip:%s successful.' % self._hostname
-        fail = 'Registration on sip:%s failed:.*' % self._hostname
-        result = process.expect([success, fail, pexpect.EOF, pexpect.TIMEOUT])
+    def _handle_result(self, result):
         if result == 1:
             raise LinphoneException('Registration failed')
         elif result == 2:
@@ -92,10 +90,9 @@ class RegisterCommand(_BaseCommand):
         elif result == 3:
             raise LinphoneException('pexpect timeout on registration')
 
-    @staticmethod
-    def _build_command_string(uname, passwd, hostname):
+    def _build_command_string(self):
         cmd_string = 'register sip:%(name)s@%(host)s %(host)s %(passwd)s'
-        return cmd_string % {'name': uname, 'passwd': passwd, 'host': hostname}
+        return cmd_string % {'name': self._uname, 'passwd': self._passwd, 'host': self._hostname}
 
 
 class UnregisterCommand(_BaseCommand):

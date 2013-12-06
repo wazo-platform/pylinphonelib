@@ -69,7 +69,7 @@ class TestRegisterCommand(TestCase):
         self.assertRaises(LinphoneException, c.execute, self._child)
 
     def test_build_command_string(self):
-        command_string = RegisterCommand._build_command_string('abc', '5eCr37', '127.0.0.1')
+        command_string = RegisterCommand('abc', '5eCr37', '127.0.0.1')._build_command_string()
 
         assert_that(command_string, equal_to('register sip:abc@127.0.0.1 127.0.0.1 5eCr37'))
 
