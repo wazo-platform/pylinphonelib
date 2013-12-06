@@ -97,18 +97,15 @@ class RegisterCommand(_BaseCommand):
 
 class UnregisterCommand(_BaseCommand):
 
+    _successes = ['Unregistration on sip:.* done.']
+    _fails = ['unregistered']
+
     def __eq__(self, other):
         return type(other) == type(self)
 
-    def execute(self, process):
-        cmd_string = self._build_command_string()
-        process.sendline(cmd_string)
-        success = 'Unregistration on sip:.* done.'
-        fail = 'unregistered'
-        result = process.expect([success, fail, pexpect.EOF, pexpect.TIMEOUT])
+    def _handle_result(self, result):
         if result != 0:
             raise LinphoneException('Unregister failed')
 
-    @staticmethod
-    def _build_command_string():
+    def _build_command_string(self):
         return 'unregister'

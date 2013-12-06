@@ -30,9 +30,6 @@ class TestAnswerCommand(TestCase):
 
 class TestCallCommand(TestCase):
 
-    def setUp(self):
-        self._child = Mock(pexpect.spawn)
-
     def test_handle_result_not_found(self):
         c = CallCommand(sentinel.exten)
         result_index = c._param_list().index('Not Found')
@@ -48,25 +45,15 @@ class TestCallCommand(TestCase):
 class TestRegisterCommand(TestCase):
 
     def setUp(self):
-        self._child = Mock(pexpect.spawn)
         self._uname = 'name'
         self._passwd = 'secret'
         self._hostname = '127.0.0.1'
 
-    def test_execute_success(self):
+    def test_handle_result_failure(self):
         c = RegisterCommand(self._uname, self._passwd, self._hostname)
-        c._build_command_string = Mock(return_value=sentinel.command_string)
+        result_index = c._param_list().index('Registration on sip:.* failed:.*')
 
-        c.execute(self._child)
-
-        self._child.sendline.assert_called_once_with(sentinel.command_string)
-
-    def test_execute_failure(self):
-        c = RegisterCommand(self._uname, self._passwd, self._hostname)
-        c._build_command_string = Mock(return_value=sentinel.command_string)
-        self._child.expect.return_value = 1
-
-        self.assertRaises(LinphoneException, c.execute, self._child)
+        self.assertRaises(LinphoneException, c._handle_result, result_index)
 
     def test_build_command_string(self):
         command_string = RegisterCommand('abc', '5eCr37', '127.0.0.1')._build_command_string()
@@ -76,26 +63,13 @@ class TestRegisterCommand(TestCase):
 
 class TestUnregisterCommand(TestCase):
 
-    def setUp(self):
-        self._child = Mock(pexpect.spawn)
-
-    def test_execute_success(self):
+    def test_handle_result_failure(self):
         c = UnregisterCommand()
-        c._build_command_string = Mock(return_value=sentinel.command_string)
-        self._child.expect.return_value = 0
+        result_index = c._param_list().index('unregistered')
 
-        c.execute(self._child)
-
-        self._child.sendline.assert_called_once_with(sentinel.command_string)
-
-    def test_execute_failure(self):
-        c = UnregisterCommand()
-        c._build_command_string = Mock(return_value=sentinel.command_string)
-        self._child.expect.return_value = 1
-
-        self.assertRaises(LinphoneException, c.execute, self._child)
+        self.assertRaises(LinphoneException, c._handle_result, result_index)
 
     def test_build_command_string(self):
-        command = UnregisterCommand._build_command_string()
+        command = UnregisterCommand()._build_command_string()
 
         assert_that(command, equal_to('unregister'))
