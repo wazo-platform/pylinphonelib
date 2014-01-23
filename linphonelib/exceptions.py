@@ -20,6 +20,14 @@ class LinphoneException(Exception):
     pass
 
 
+class CommandTimeoutException(LinphoneException):
+    pass
+
+
+class LinphoneEOFException(LinphoneException):
+    pass
+
+
 class ExtensionNotFoundException(LinphoneException):
     pass
 

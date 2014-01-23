@@ -18,8 +18,10 @@
 import itertools
 import pexpect
 
+from linphonelib.exceptions import CommandTimeoutException
 from linphonelib.exceptions import ExtensionNotFoundException
 from linphonelib.exceptions import LinphoneException
+from linphonelib.exceptions import LinphoneEOFException
 from linphonelib.exceptions import NoActiveCallException
 
 
@@ -27,16 +29,21 @@ class _BaseCommand(object):
 
     _successes = []
     _fails = []
-    _defaults = [pexpect.EOF, pexpect.TIMEOUT]
 
     def execute(self, process):
         cmd_string = self._build_command_string()
         process.sendline(cmd_string)
-        result = process.expect(self._param_list())
-        self._handle_result(result)
+        try:
+            result = process.expect(self._param_list())
+        except pexpect.TIMEOUT:
+            raise CommandTimeoutException(self.__class__.__name__)
+        except pexpect.EOF:
+            raise LinphoneEOFException(self.__class__.__name__)
+        else:
+            self._handle_result(result)
 
     def _param_list(self):
-        return list(itertools.chain(self._successes, self._fails, self._defaults))
+        return list(itertools.chain(self._successes, self._fails))
 
     def _handle_result(self, result):
         raise NotImplementedError('No result handler on command %s', self.__class__)

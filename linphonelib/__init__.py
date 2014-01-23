@@ -16,6 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from linphonelib.exceptions import LinphoneException
+from linphonelib.exceptions import CommandTimeoutException
+from linphonelib.exceptions import LinphoneEOFException
 from linphonelib.exceptions import NoActiveCallException
 from linphonelib.exceptions import ExtensionNotFoundException
 from linphonelib.linphonesession import Session
