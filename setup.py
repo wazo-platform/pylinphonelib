@@ -10,7 +10,7 @@ from setuptools import setup
 setup(
     name='pylinphonelib',
     version='0.0',
-    license='MIT',
+    license='GPLv3',
     author='Avencall',
     author_email='xivo-dev@lists.proformatique.com',
     description='A library to drive linphonec',
