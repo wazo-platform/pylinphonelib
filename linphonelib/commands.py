@@ -84,10 +84,11 @@ class CallCommand(_BaseCommand):
         return self._exten == other._exten
 
     def _handle_result(self, result):
-        if result == 2:
+        nb_success = len(self._successes)
+        if result < nb_success:
+            return
+        else:
             raise ExtensionNotFoundException('Failed to call %s' % self._exten)
-        elif result > len(self._successes):
-            raise LinphoneException('Failed to call %s' % self._exten)
 
     def _build_command_string(self):
         return 'call %s' % self._exten
