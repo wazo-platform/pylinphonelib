@@ -51,7 +51,9 @@ class _BaseCommand(object):
 
 class AnswerCommand(_BaseCommand):
 
-    _successes = ['Call \d+ with .* connected.']
+    _successes = [
+        'Call \d+ with .* connected.',
+    ]
     _fails = ['There are no calls to answer.']
 
     def __eq__(self, other):
@@ -59,7 +61,6 @@ class AnswerCommand(_BaseCommand):
 
     def _handle_result(self, result):
         if result >= len(self._successes):
-            print 'throw'
             raise LinphoneException('Failed to answer the call')
 
     @staticmethod
@@ -72,6 +73,7 @@ class CallCommand(_BaseCommand):
     _successes = [
         'Remote ringing.',
         'Call answered by <sip:.*>.',
+        'Call \d+ to .* in progress.',
     ]
     _fails = ['Not Found']
 
