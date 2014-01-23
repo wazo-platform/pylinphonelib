@@ -38,11 +38,11 @@ def _execute(f):
 
 class Session(object):
 
-    def __init__(self, uname, secret, hostname, local_port):
+    def __init__(self, uname, secret, hostname, local_port, logfile=None):
         self._uname = uname
         self._secret = secret
         self._hostname = hostname
-        self._linphone_shell = _Shell(local_port)
+        self._linphone_shell = _Shell(local_port, logfile)
 
     def __str__(self):
         return 'Session %(_uname)s@%(_hostname)s' % self.__dict__
@@ -75,10 +75,11 @@ class _Shell(object):
 sip_port=%(port)s
 '''
 
-    def __init__(self, port):
+    def __init__(self, port, logfile=None):
         self._port = port
         self._process = None
         self._config_filename = ''
+        self._logfile = logfile
 
     def __del__(self):
         if os.path.exists(self._config_filename):
@@ -96,6 +97,8 @@ sip_port=%(port)s
 
     def _start(self):
         self._process = pexpect.spawn('linphonec -c %s' % self._create_config_file())
+        if self._logfile:
+            self._process.logfile = self._logfile
 
     def _create_config_file(self):
         if self._config_filename:
