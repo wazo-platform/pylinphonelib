@@ -23,6 +23,7 @@ from linphonelib.commands import _BaseCommand
 from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
 from linphonelib.commands import HangupCommand
+from linphonelib.commands import HookStatusCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
 from linphonelib import LinphoneException
@@ -74,6 +75,38 @@ class TestHangupCommand(TestCase):
         result_index = c._param_list().index('No active calls')
 
         self.assertRaises(NoActiveCallException, c._handle_result, result_index)
+
+
+class TestHookStatus(TestCase):
+
+    def test_build_command_string(self):
+        result = HookStatusCommand()._build_command_string()
+
+        assert_that(result, equal_to('status hook'))
+
+    def test_phone_answered(self):
+        c = HookStatusCommand()
+        result_index = c._param_list().index('hook=answered duration=\d+ ".*" <sip:.*>')
+
+        hook_status = c._handle_result(result_index)
+
+        assert_that(hook_status, equal_to(c.HookStatus.ANSWERED))
+
+    def test_phone_ringing(self):
+        c = HookStatusCommand()
+        result_index = c._param_list().index('Incoming call from ".*" <sip:.*>')
+
+        hook_status = c._handle_result(result_index)
+
+        assert_that(hook_status, equal_to(c.HookStatus.RINGING))
+
+    def test_phone_off_hook(self):
+        c = HookStatusCommand()
+        result_index = c._param_list().index('hook=offhook')
+
+        hook_status = c._handle_result(result_index)
+
+        assert_that(hook_status, equal_to(c.HookStatus.OFFHOOK))
 
 
 class TestRegisterCommand(TestCase):

@@ -24,6 +24,7 @@ from functools import wraps
 from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
 from linphonelib.commands import HangupCommand
+from linphonelib.commands import HookStatusCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
 from linphonelib.exceptions import LinphoneException
@@ -58,6 +59,10 @@ class Session(object):
     @_execute
     def hangup(self):
         return HangupCommand()
+
+    @_execute
+    def hook_status(self):
+        return HookStatusCommand()
 
     @_execute
     def register(self):

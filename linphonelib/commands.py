@@ -124,6 +124,36 @@ class HangupCommand(_BaseCommand):
             raise LinphoneException('Hangup failed')
 
 
+class HookStatusCommand(_BaseCommand):
+
+    _successes = [
+        'hook=offhook',
+        'Incoming call from ".*" <sip:.*>',
+        'hook=answered duration=\d+ ".*" <sip:.*>',
+    ]
+    _fails = []
+
+    class HookStatus(object):
+        OFFHOOK = 0
+        RINGING = 1
+        ANSWERED = 2
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__
+
+    def _handle_result(self, result):
+        if result == self._successes.index('hook=offhook'):
+            return self.HookStatus.OFFHOOK
+        elif result == self._successes.index('Incoming call from ".*" <sip:.*>'):
+            return self.HookStatus.RINGING
+        elif result == self._successes.index('hook=answered duration=\d+ ".*" <sip:.*>'):
+            return self.HookStatus.ANSWERED
+        else:
+            raise LinphoneException('Unhandled result for HookStatusCommand')
+
+    def _build_command_string(self):
+        return 'status hook'
+
 class RegisterCommand(_BaseCommand):
 
     _successes = ['Registration on sip:.* successful.']
