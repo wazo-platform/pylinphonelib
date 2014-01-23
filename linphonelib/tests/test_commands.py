@@ -23,6 +23,7 @@ from linphonelib.commands import HangupCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
 from linphonelib import LinphoneException
+from linphonelib import NoActiveCallException
 from mock import sentinel
 from unittest import TestCase
 
@@ -66,7 +67,7 @@ class TestHangupCommand(TestCase):
         c = HangupCommand()
         result_index = c._param_list().index('No active calls')
 
-        self.assertRaises(LinphoneException, c._handle_result, result_index)
+        self.assertRaises(NoActiveCallException, c._handle_result, result_index)
 
 
 class TestRegisterCommand(TestCase):

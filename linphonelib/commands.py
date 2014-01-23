@@ -20,6 +20,7 @@ import pexpect
 
 from linphonelib.exceptions import ExtensionNotFoundException
 from linphonelib.exceptions import LinphoneException
+from linphonelib.exceptions import NoActiveCallException
 
 
 class _BaseCommand(object):
@@ -95,6 +96,16 @@ class HangupCommand(_BaseCommand):
         return 'terminate'
 
     def _handle_result(self, result):
+        last_success = len(self._successes)
+        last_fail = len(self._fails) + last_success
+        if result < last_success:
+            return
+        elif result < last_fail:
+            fail_idx = result - last_success
+            if self._fails[fail_idx] == 'No active calls':
+                raise NoActiveCallException()
+            else:
+                raise LinphoneException('Hangup failed: %s', self._fails[fail_idx])
         if result >= len(self._successes):
             raise LinphoneException('Hangup failed')
 
