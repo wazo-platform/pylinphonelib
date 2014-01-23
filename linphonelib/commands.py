@@ -94,7 +94,11 @@ class CallCommand(_BaseCommand):
 class HangupCommand(_BaseCommand):
 
     _successes = ['Call ended']
-    _fails = ['No active calls']
+    _fails = [
+        'No active calls',
+        'Could not stop the active call.',
+        'Could not stop the call with id \d+',
+    ]
 
     def __eq__(self, other):
         return type(self) == type(other)
