@@ -58,7 +58,7 @@ class TestCallCommand(TestCase):
 
 class TestHangupCommand(TestCase):
 
-    def test_build_command_stirng(self):
+    def test_build_command_string(self):
         result = HangupCommand()._build_command_string()
 
         assert_that(result, equal_to('terminate'))
