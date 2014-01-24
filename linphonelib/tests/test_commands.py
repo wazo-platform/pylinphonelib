@@ -19,21 +19,21 @@ import pexpect
 
 from hamcrest import assert_that
 from hamcrest import equal_to
-from linphonelib.commands import _BaseCommand
+from linphonelib import CommandTimeoutException
+from linphonelib import LinphoneEOFException
+from linphonelib import LinphoneException
+from linphonelib import NoActiveCallException
 from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
 from linphonelib.commands import HangupCommand
 from linphonelib.commands import HookStatusCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
-from linphonelib import LinphoneException
-from linphonelib import LinphoneEOFException
-from linphonelib import CommandTimeoutException
-from linphonelib import NoActiveCallException
+from linphonelib.commands import _BaseCommand
+from linphonelib.exceptions import ExtensionNotFoundException
 from mock import Mock
 from mock import sentinel
 from unittest import TestCase
-from linphonelib.exceptions import ExtensionNotFoundException
 
 
 class TestAnswerCommand(TestCase):
