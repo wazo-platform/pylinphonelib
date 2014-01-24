@@ -73,7 +73,6 @@ class CallCommand(_BaseCommand):
     _successes = [
         'Remote ringing.',
         'Call answered by <sip:.*>.',
-        'Call \d+ to .* in progress.',
     ]
     _fails = ['Not Found']
 
@@ -153,6 +152,7 @@ class HookStatusCommand(_BaseCommand):
 
     def _build_command_string(self):
         return 'status hook'
+
 
 class RegisterCommand(_BaseCommand):
 

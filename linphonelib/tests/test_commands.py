@@ -33,6 +33,7 @@ from linphonelib import NoActiveCallException
 from mock import Mock
 from mock import sentinel
 from unittest import TestCase
+from linphonelib.exceptions import ExtensionNotFoundException
 
 
 class TestAnswerCommand(TestCase):
@@ -55,7 +56,7 @@ class TestCallCommand(TestCase):
         c = CallCommand(sentinel.exten)
         result_index = c._param_list().index('Not Found')
 
-        self.assertRaises(LinphoneException, c._handle_result, result_index)
+        self.assertRaises(ExtensionNotFoundException, c._handle_result, result_index)
 
     def test_build_command_string(self):
         result = CallCommand('1001')._build_command_string()
