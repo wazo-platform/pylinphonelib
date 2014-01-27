@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import itertools
 import pexpect
 
 from linphonelib.exceptions import CommandTimeoutException
@@ -25,10 +24,29 @@ from linphonelib.exceptions import LinphoneEOFException
 from linphonelib.exceptions import NoActiveCallException
 
 
+def pattern(pattern):
+    def decorator(f):
+        def decorated(self, *args):
+            self._handlers.append((pattern, f))
+            return f(self, *args)
+        return decorated
+    return decorator
+
+
+class _BaseCommandMeta(type):
+
+    def __new__(meta, name, bases, dct):
+        if '_handlers' not in dct:
+            dct['_handlers'] = []
+        return super(_BaseCommandMeta, meta).__new__(meta, name, bases, dct)
+
+    def __init__(cls, name, bases, dct):
+        return super(_BaseCommandMeta, cls).__init__(name, bases, dct)
+
+
 class _BaseCommand(object):
 
-    _successes = []
-    _fails = []
+    __metaclass__ = _BaseCommandMeta
 
     def execute(self, process):
         cmd_string = self._build_command_string()
@@ -43,25 +61,25 @@ class _BaseCommand(object):
             self._handle_result(result)
 
     def _param_list(self):
-        return list(itertools.chain(self._successes, self._fails))
+        return [p[0] for p in self._handlers]
+        # return list(itertools.chain(self._successes, self._fails))
 
     def _handle_result(self, result):
-        raise NotImplementedError('No result handler on command %s', self.__class__)
+        self._handlers[result]()
 
 
 class AnswerCommand(_BaseCommand):
 
-    _successes = [
-        'Call \d+ with .* connected.',
-    ]
-    _fails = ['There are no calls to answer.']
-
     def __eq__(self, other):
         return type(self) == type(other)
 
-    def _handle_result(self, result):
-        if result >= len(self._successes):
-            raise LinphoneException('Failed to answer the call')
+    @pattern('Call \d+ with .* connected.')
+    def handle_connected(self):
+        pass
+
+    @pattern('There are no calls to answer.')
+    def handle_no_call(self):
+        raise NoActiveCallException()
 
     @staticmethod
     def _build_command_string():
@@ -70,24 +88,20 @@ class AnswerCommand(_BaseCommand):
 
 class CallCommand(_BaseCommand):
 
-    _successes = [
-        'Remote ringing.',
-        'Call answered by <sip:.*>.',
-    ]
-    _fails = ['Not Found']
-
     def __init__(self, exten):
         self._exten = exten
 
     def __eq__(self, other):
         return self._exten == other._exten
 
-    def _handle_result(self, result):
-        nb_success = len(self._successes)
-        if result < nb_success:
-            return
-        else:
-            raise ExtensionNotFoundException('Failed to call %s' % self._exten)
+    @pattern('Call answered by <sip:.*>.')
+    @pattern('Remote ringing.')
+    def handle_success(self):
+        pass
+
+    @pattern('Not Found')
+    def handle_not_found(self):
+        raise ExtensionNotFoundException('Failed to call %s' % self._exten)
 
     def _build_command_string(self):
         return 'call %s' % self._exten
@@ -95,69 +109,54 @@ class CallCommand(_BaseCommand):
 
 class HangupCommand(_BaseCommand):
 
-    _successes = ['Call ended']
-    _fails = [
-        'No active calls',
-        'Could not stop the active call.',
-        'Could not stop the call with id \d+',
-    ]
-
     def __eq__(self, other):
         return type(self) == type(other)
 
     def _build_command_string(self):
         return 'terminate'
 
-    def _handle_result(self, result):
-        last_success = len(self._successes)
-        last_fail = len(self._fails) + last_success
-        if result < last_success:
-            return
-        elif result < last_fail:
-            fail_idx = result - last_success
-            if self._fails[fail_idx] == 'No active calls':
-                raise NoActiveCallException()
-            else:
-                raise LinphoneException('Hangup failed: %s', self._fails[fail_idx])
-        if result >= len(self._successes):
-            raise LinphoneException('Hangup failed')
+    @pattern('Call ended')
+    def handle_success(self):
+        pass
+
+    @pattern('No active calls')
+    def handle_no_active_calls(self):
+        raise NoActiveCallException()
+
+    @pattern('Could not stop the call with id \d+')
+    @pattern('Could not stop the active call.')
+    def handle_count_not_stop_the_call(self):
+        raise LinphoneException('Hangup failed')
+
+
+class HookStatus(object):
+    OFFHOOK = 0
+    RINGING = 1
+    ANSWERED = 2
 
 
 class HookStatusCommand(_BaseCommand):
 
-    _successes = [
-        'hook=offhook',
-        'Incoming call from ".*" <sip:.*>',
-        'hook=answered duration=\d+ ".*" <sip:.*>',
-    ]
-    _fails = []
-
-    class HookStatus(object):
-        OFFHOOK = 0
-        RINGING = 1
-        ANSWERED = 2
-
     def __eq__(self, other):
         return self.__class__ == other.__class__
 
-    def _handle_result(self, result):
-        if result == self._successes.index('hook=offhook'):
-            return self.HookStatus.OFFHOOK
-        elif result == self._successes.index('Incoming call from ".*" <sip:.*>'):
-            return self.HookStatus.RINGING
-        elif result == self._successes.index('hook=answered duration=\d+ ".*" <sip:.*>'):
-            return self.HookStatus.ANSWERED
-        else:
-            raise LinphoneException('Unhandled result for HookStatusCommand')
+    @pattern('hook=offhook')
+    def handle_offhook(self):
+        return HookStatus.OFFHOOK
+
+    @pattern('Incoming call from ".*" <sip:.*>')
+    def handle_ringing(self):
+        return HookStatus.RINGING
+
+    @pattern('hook=answered duration=\d+ ".*" <sip:.*>')
+    def handle_answered(self):
+        return HookStatus.ANSWERED
 
     def _build_command_string(self):
         return 'status hook'
 
 
 class RegisterCommand(_BaseCommand):
-
-    _successes = ['Registration on sip:.* successful.']
-    _fails = ['Registration on sip:.* failed:.*']
 
     def __init__(self, uname, passwd, hostname):
         self._uname = uname
@@ -171,30 +170,33 @@ class RegisterCommand(_BaseCommand):
             and self._hostname == other._hostname
         )
 
-    def _handle_result(self, result):
-        if result == 1:
-            raise LinphoneException('Registration failed')
-        elif result == 2:
-            raise LinphoneException('Registration returned no result')
-        elif result == 3:
-            raise LinphoneException('pexpect timeout on registration')
+    @pattern('Registration on sip:.* successful.')
+    def handle_success(self):
+        pass
+
+    @pattern('Registration on sip:.* failed:.*')
+    def handle_failure(self):
+        raise LinphoneException('Registration failed')
 
     def _build_command_string(self):
         cmd_string = 'register sip:%(name)s@%(host)s %(host)s %(passwd)s'
-        return cmd_string % {'name': self._uname, 'passwd': self._passwd, 'host': self._hostname}
+        return cmd_string % {'name': self._uname,
+                             'passwd': self._passwd,
+                             'host': self._hostname}
 
 
 class UnregisterCommand(_BaseCommand):
 
-    _successes = ['Unregistration on sip:.* done.']
-    _fails = ['unregistered']
-
     def __eq__(self, other):
         return type(other) == type(self)
 
-    def _handle_result(self, result):
-        if result != 0:
-            raise LinphoneException('Unregister failed')
+    @pattern('Unregistration on sip:.* done.')
+    def handle_success(self):
+        pass
+
+    @pattern('unregistered')
+    def handle_not_registered(self):
+        raise LinphoneException('Unregister failed')
 
     def _build_command_string(self):
         return 'unregister'

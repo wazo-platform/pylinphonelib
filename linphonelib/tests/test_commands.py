@@ -27,6 +27,7 @@ from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
 from linphonelib.commands import HangupCommand
 from linphonelib.commands import HookStatusCommand
+from linphonelib.commands import HookStatus
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
 from linphonelib.commands import _BaseCommand
@@ -38,25 +39,19 @@ from unittest import TestCase
 
 class TestAnswerCommand(TestCase):
 
-    def test_handle_result_no_call(self):
+    def test_handle_no_active_calls(self):
         c = AnswerCommand()
-        result_index = c._param_list().index('There are no calls to answer.')
 
-        self.assertRaises(LinphoneException, c._handle_result, result_index)
-
-    def test_build_command_string(self):
-        result = AnswerCommand._build_command_string()
-
-        assert_that(result, equal_to('answer'))
+        self.assertRaises(NoActiveCallException, c.handle_no_call)
 
 
 class TestCallCommand(TestCase):
 
     def test_handle_result_not_found(self):
         c = CallCommand(sentinel.exten)
-        result_index = c._param_list().index('Not Found')
 
-        self.assertRaises(ExtensionNotFoundException, c._handle_result, result_index)
+        self.assertRaises(ExtensionNotFoundException,
+                          c.handle_not_found)
 
     def test_build_command_string(self):
         result = CallCommand('1001')._build_command_string()
@@ -73,9 +68,8 @@ class TestHangupCommand(TestCase):
 
     def test_handle_result_no_call(self):
         c = HangupCommand()
-        result_index = c._param_list().index('No active calls')
 
-        self.assertRaises(NoActiveCallException, c._handle_result, result_index)
+        self.assertRaises(NoActiveCallException, c.handle_no_active_calls)
 
 
 class TestHookStatus(TestCase):
@@ -87,27 +81,18 @@ class TestHookStatus(TestCase):
 
     def test_phone_answered(self):
         c = HookStatusCommand()
-        result_index = c._param_list().index('hook=answered duration=\d+ ".*" <sip:.*>')
 
-        hook_status = c._handle_result(result_index)
-
-        assert_that(hook_status, equal_to(c.HookStatus.ANSWERED))
+        assert_that(c.handle_answered(), equal_to(HookStatus.ANSWERED))
 
     def test_phone_ringing(self):
         c = HookStatusCommand()
-        result_index = c._param_list().index('Incoming call from ".*" <sip:.*>')
 
-        hook_status = c._handle_result(result_index)
-
-        assert_that(hook_status, equal_to(c.HookStatus.RINGING))
+        assert_that(c.handle_ringing(), equal_to(HookStatus.RINGING))
 
     def test_phone_off_hook(self):
         c = HookStatusCommand()
-        result_index = c._param_list().index('hook=offhook')
 
-        hook_status = c._handle_result(result_index)
-
-        assert_that(hook_status, equal_to(c.HookStatus.OFFHOOK))
+        assert_that(c.handle_offhook(), equal_to(HookStatus.OFFHOOK))
 
 
 class TestRegisterCommand(TestCase):
@@ -119,23 +104,26 @@ class TestRegisterCommand(TestCase):
 
     def test_handle_result_failure(self):
         c = RegisterCommand(self._uname, self._passwd, self._hostname)
-        result_index = c._param_list().index('Registration on sip:.* failed:.*')
 
-        self.assertRaises(LinphoneException, c._handle_result, result_index)
+        self.assertRaises(LinphoneException, c.handle_failure)
 
     def test_build_command_string(self):
-        command_string = RegisterCommand('abc', '5eCr37', '127.0.0.1')._build_command_string()
+        command_string = RegisterCommand(
+            'abc', '5eCr37', '127.0.0.1'
+        )._build_command_string()
 
-        assert_that(command_string, equal_to('register sip:abc@127.0.0.1 127.0.0.1 5eCr37'))
+        assert_that(
+            command_string,
+            equal_to('register sip:abc@127.0.0.1 127.0.0.1 5eCr37')
+        )
 
 
 class TestUnregisterCommand(TestCase):
 
-    def test_handle_result_failure(self):
+    def test_handle_result_not_registered(self):
         c = UnregisterCommand()
-        result_index = c._param_list().index('unregistered')
 
-        self.assertRaises(LinphoneException, c._handle_result, result_index)
+        self.assertRaises(LinphoneException, c.handle_not_registered)
 
     def test_build_command_string(self):
         command = UnregisterCommand()._build_command_string()
@@ -144,6 +132,15 @@ class TestUnregisterCommand(TestCase):
 
 
 class TestBaseCommand(TestCase):
+
+    def test_subcommands_have_handlers(self):
+        class S(_BaseCommand):
+            def __init__(self):
+                pass
+
+        s = S()
+
+        self.assertTrue(hasattr(s, '_handlers'))
 
     def test_timeout_exception(self):
         mocked_process = Mock()
