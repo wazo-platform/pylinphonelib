@@ -15,12 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import pexpect
 
 from hamcrest import assert_that
 from hamcrest import equal_to
-from linphonelib import CommandTimeoutException
-from linphonelib import LinphoneEOFException
 from linphonelib import LinphoneException
 from linphonelib import NoActiveCallException
 from linphonelib.commands import AnswerCommand
@@ -30,9 +27,7 @@ from linphonelib.commands import HookStatusCommand
 from linphonelib.commands import HookStatus
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
-from linphonelib.commands import _BaseCommand
 from linphonelib.exceptions import ExtensionNotFoundException
-from mock import Mock
 from mock import sentinel
 from unittest import TestCase
 
@@ -129,33 +124,3 @@ class TestUnregisterCommand(TestCase):
         command = UnregisterCommand()._build_command_string()
 
         assert_that(command, equal_to('unregister'))
-
-
-class TestBaseCommand(TestCase):
-
-    def test_subcommands_have_handlers(self):
-        class S(_BaseCommand):
-            def __init__(self):
-                pass
-
-        s = S()
-
-        self.assertTrue(hasattr(s, '_handlers'))
-
-    def test_timeout_exception(self):
-        mocked_process = Mock()
-        mocked_process.expect.side_effect = pexpect.TIMEOUT('')
-
-        c = _BaseCommand()
-        c._build_command_string = lambda: ''
-
-        self.assertRaises(CommandTimeoutException, c.execute, mocked_process)
-
-    def test_eof_exception(self):
-        mocked_process = Mock()
-        mocked_process.expect.side_effect = pexpect.EOF('')
-
-        c = _BaseCommand()
-        c._build_command_string = lambda: ''
-
-        self.assertRaises(LinphoneEOFException, c.execute, mocked_process)

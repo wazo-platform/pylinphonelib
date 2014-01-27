@@ -15,60 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-import pexpect
 
-from linphonelib.exceptions import CommandTimeoutException
 from linphonelib.exceptions import ExtensionNotFoundException
 from linphonelib.exceptions import LinphoneException
-from linphonelib.exceptions import LinphoneEOFException
 from linphonelib.exceptions import NoActiveCallException
+from linphonelib.base_command import BaseCommand
+from linphonelib.base_command import pattern
 
 
-def pattern(pattern):
-    def decorator(f):
-        def decorated(self, *args):
-            self._handlers.append((pattern, f))
-            return f(self, *args)
-        return decorated
-    return decorator
-
-
-class _BaseCommandMeta(type):
-
-    def __new__(meta, name, bases, dct):
-        if '_handlers' not in dct:
-            dct['_handlers'] = []
-        return super(_BaseCommandMeta, meta).__new__(meta, name, bases, dct)
-
-    def __init__(cls, name, bases, dct):
-        return super(_BaseCommandMeta, cls).__init__(name, bases, dct)
-
-
-class _BaseCommand(object):
-
-    __metaclass__ = _BaseCommandMeta
-
-    def execute(self, process):
-        cmd_string = self._build_command_string()
-        process.sendline(cmd_string)
-        try:
-            result = process.expect(self._param_list())
-        except pexpect.TIMEOUT:
-            raise CommandTimeoutException(self.__class__.__name__)
-        except pexpect.EOF:
-            raise LinphoneEOFException(self.__class__.__name__)
-        else:
-            self._handle_result(result)
-
-    def _param_list(self):
-        return [p[0] for p in self._handlers]
-        # return list(itertools.chain(self._successes, self._fails))
-
-    def _handle_result(self, result):
-        self._handlers[result]()
-
-
-class AnswerCommand(_BaseCommand):
+class AnswerCommand(BaseCommand):
 
     def __eq__(self, other):
         return type(self) == type(other)
@@ -86,7 +41,7 @@ class AnswerCommand(_BaseCommand):
         return 'answer'
 
 
-class CallCommand(_BaseCommand):
+class CallCommand(BaseCommand):
 
     def __init__(self, exten):
         self._exten = exten
@@ -107,7 +62,7 @@ class CallCommand(_BaseCommand):
         return 'call %s' % self._exten
 
 
-class HangupCommand(_BaseCommand):
+class HangupCommand(BaseCommand):
 
     def __eq__(self, other):
         return type(self) == type(other)
@@ -135,7 +90,7 @@ class HookStatus(object):
     ANSWERED = 2
 
 
-class HookStatusCommand(_BaseCommand):
+class HookStatusCommand(BaseCommand):
 
     def __eq__(self, other):
         return self.__class__ == other.__class__
@@ -156,7 +111,7 @@ class HookStatusCommand(_BaseCommand):
         return 'status hook'
 
 
-class RegisterCommand(_BaseCommand):
+class RegisterCommand(BaseCommand):
 
     def __init__(self, uname, passwd, hostname):
         self._uname = uname
@@ -185,7 +140,7 @@ class RegisterCommand(_BaseCommand):
                              'host': self._hostname}
 
 
-class UnregisterCommand(_BaseCommand):
+class UnregisterCommand(BaseCommand):
 
     def __eq__(self, other):
         return type(other) == type(self)

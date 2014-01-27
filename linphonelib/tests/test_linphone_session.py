@@ -19,7 +19,7 @@ import pexpect
 
 from hamcrest import assert_that
 from hamcrest import equal_to
-from linphonelib.commands import _BaseCommand
+from linphonelib.base_command import BaseCommand
 from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
 from linphonelib.commands import HangupCommand
@@ -85,7 +85,7 @@ class TestShell(TestCase):
     def test_execute(self):
         s = _Shell(sentinel.port)
         s._process = Mock(pexpect.spawn)
-        cmd = Mock(_BaseCommand)
+        cmd = Mock(BaseCommand)
 
         s.execute(cmd)
 
