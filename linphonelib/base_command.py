@@ -27,9 +27,9 @@ def pattern(pattern):
     of the command class
     """
     def decorator(f):
-        def decorated(self, *args):
-            self._handlers.append((pattern, f))
-            return f(self, *args)
+        def decorated(*args, **kwargs):
+            return f(*args, **kwargs)
+        decorated.func_dict['_matched_by'] = pattern
         return decorated
     return decorator
 
@@ -40,9 +40,19 @@ class _BaseCommandMeta(type):
         """
         all base command subclass should have a _handlers list even when
         an __init__ is defined
+        all decorated method are also added to _handlers
         """
         if '_handlers' not in dct:
             dct['_handlers'] = []
+
+        for f in dct.itervalues():
+            if type(f).__name__ != 'function':
+                continue
+            if '_matched_by' not in f.func_dict:
+                continue
+            pattern = f.func_dict['_matched_by']
+            dct['_handlers'].append((pattern, f))
+
         return super(_BaseCommandMeta, meta).__new__(meta, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
@@ -66,7 +76,7 @@ class BaseCommand(object):
             self._handle_result(result)
 
     def _param_list(self):
-        return [p[0] for p in self._handlers]
+        return [pair[0] for pair in self._handlers]
 
     def _handle_result(self, result):
         self._handlers[result]()

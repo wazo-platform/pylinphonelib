@@ -17,8 +17,11 @@
 
 import pexpect
 
+from hamcrest import assert_that
+from hamcrest import contains_inanyorder
 from unittest import TestCase
 from linphonelib.base_command import BaseCommand
+from linphonelib.base_command import pattern
 from linphonelib import CommandTimeoutException
 from linphonelib import LinphoneEOFException
 from mock import Mock
@@ -34,6 +37,20 @@ class TestBaseCommand(TestCase):
         s = S()
 
         self.assertTrue(hasattr(s, '_handlers'))
+
+    def test_handler_is_filled(self):
+        class S(BaseCommand):
+            @pattern('lol1')
+            def f1(self):
+                pass
+
+            @pattern('lol2')
+            def f2(self):
+                pass
+
+        s = S()
+
+        assert_that(s._param_list(), contains_inanyorder('lol1', 'lol2'))
 
     def test_timeout_exception(self):
         mocked_process = Mock()
