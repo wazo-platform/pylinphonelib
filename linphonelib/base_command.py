@@ -17,11 +17,14 @@
 
 import pexpect
 
+from collections import namedtuple
 from linphonelib.exceptions import CommandTimeoutException
 from linphonelib.exceptions import LinphoneEOFException
 
 
 _PATTERN_MARK = '_matched_by'
+
+_MatchPair = namedtuple('_MatchPair', ['pattern', 'function'])
 
 
 def _mark_function(f, pattern):
@@ -56,7 +59,7 @@ class _BaseCommandMeta(type):
         add _handlers to the BaseCommand and add each decorated @pattern
         function to the _handlers
         """
-        dct['_handlers'] = [(_get_matching_pattern(f), f)
+        dct['_handlers'] = [_MatchPair(_get_matching_pattern(f), f)
                             for f in dct.itervalues() if _is_marked(f)]
 
         return super(_BaseCommandMeta, meta).__new__(meta, name, bases, dct)
@@ -78,8 +81,11 @@ class BaseCommand(object):
         else:
             self._handle_result(result)
 
+    def add_handler(self, pattern, function):
+        self._handlers.append(_MatchPair(pattern, function))
+
     def _param_list(self):
-        return [pair[0] for pair in self._handlers]
+        return [pair.pattern for pair in self._handlers]
 
     def _handle_result(self, result):
-        self._handlers[result]()
+        self._handlers[result].function(self)

@@ -19,6 +19,7 @@ import pexpect
 
 from hamcrest import assert_that
 from hamcrest import contains_inanyorder
+from hamcrest import equal_to
 from unittest import TestCase
 from linphonelib.base_command import BaseCommand
 from linphonelib.base_command import pattern
@@ -26,6 +27,34 @@ from linphonelib import CommandTimeoutException
 from linphonelib import LinphoneEOFException
 from mock import Mock
 from mock import sentinel
+
+
+class TestBaseCommandResultHandling(TestCase):
+
+    def test_command_dispatching(self):
+        cb1 = Mock()
+        cb2 = Mock()
+
+        class S(BaseCommand):
+            def __init__(self):
+                self.add_handler(sentinel.first, cb1)
+                self.add_handler(sentinel.second, cb2)
+
+        s = S()
+
+        cb1_index = self._index_of(sentinel.first, s._handlers)
+
+        s._handle_result(cb1_index)
+
+        cb1.assert_called_once_with(s)
+        assert_that(cb2.call_count, equal_to(0))
+
+    @staticmethod
+    def _index_of(pattern, handlers):
+        for i in xrange(len(handlers)):
+            if handlers[i][0] == pattern:
+                return i
+        raise LookupError('%s is not a member of handlers' % pattern)
 
 
 class TestBaseCommandHandlers(TestCase):
@@ -56,7 +85,7 @@ class TestBaseCommandHandlers(TestCase):
     def test_that_handlers_can_be_defined_in_init(self):
         class S(BaseCommand):
             def __init__(self):
-                self._handlers.append((sentinel.pattern, lambda: None))
+                self.add_handler(sentinel.pattern, lambda: None)
 
         s = S()
 
@@ -65,7 +94,7 @@ class TestBaseCommandHandlers(TestCase):
     def test_that_handlers_can_be_defined_in_init_and_as_decorators(self):
         class S(BaseCommand):
             def __init__(self):
-                self._handlers.append((sentinel.init, lambda: None))
+                self.add_handler(sentinel.init, lambda: None)
 
             @pattern(sentinel.decorator)
             def handler(self):
