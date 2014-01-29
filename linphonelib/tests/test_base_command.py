@@ -25,9 +25,10 @@ from linphonelib.base_command import pattern
 from linphonelib import CommandTimeoutException
 from linphonelib import LinphoneEOFException
 from mock import Mock
+from mock import sentinel
 
 
-class TestBaseCommand(TestCase):
+class TestBaseCommandHandlers(TestCase):
 
     def test_subcommands_have_handlers(self):
         class S(BaseCommand):
@@ -51,6 +52,32 @@ class TestBaseCommand(TestCase):
         s = S()
 
         assert_that(s._param_list(), contains_inanyorder('lol1', 'lol2'))
+
+    def test_that_handlers_can_be_defined_in_init(self):
+        class S(BaseCommand):
+            def __init__(self):
+                self._handlers.append((sentinel.pattern, lambda: None))
+
+        s = S()
+
+        assert_that(s._param_list(), contains_inanyorder(sentinel.pattern))
+
+    def test_that_handlers_can_be_defined_in_init_and_as_decorators(self):
+        class S(BaseCommand):
+            def __init__(self):
+                self._handlers.append((sentinel.init, lambda: None))
+
+            @pattern(sentinel.decorator)
+            def handler(self):
+                pass
+
+        s = S()
+
+        assert_that(s._param_list(),
+                    contains_inanyorder(sentinel.init, sentinel.decorator))
+
+
+class TestBaseCommandExceptions(TestCase):
 
     def test_timeout_exception(self):
         mocked_process = Mock()

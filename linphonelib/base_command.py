@@ -21,15 +21,30 @@ from linphonelib.exceptions import CommandTimeoutException
 from linphonelib.exceptions import LinphoneEOFException
 
 
+_PATTERN_MARK = '_matched_by'
+
+
+def _mark_function(f, pattern):
+    f.func_dict[_PATTERN_MARK] = pattern
+
+
+def _is_marked(f):
+    return type(f).__name__ == 'function' and _PATTERN_MARK in f.func_dict
+
+
+def _get_matching_pattern(f):
+    return f.func_dict[_PATTERN_MARK]
+
+
 def pattern(pattern):
     """
-    appends a tupple (pattern, function) to the _handlers
-    of the command class
+    mark decorated function objects to be added to _handlers at object
+    initialization.
     """
     def decorator(f):
         def decorated(*args, **kwargs):
             return f(*args, **kwargs)
-        decorated.func_dict['_matched_by'] = pattern
+        _mark_function(decorated, pattern)
         return decorated
     return decorator
 
@@ -38,25 +53,13 @@ class _BaseCommandMeta(type):
 
     def __new__(meta, name, bases, dct):
         """
-        all base command subclass should have a _handlers list even when
-        an __init__ is defined
-        all decorated method are also added to _handlers
+        add _handlers to the BaseCommand and add each decorated @pattern
+        function to the _handlers
         """
-        if '_handlers' not in dct:
-            dct['_handlers'] = []
-
-        for f in dct.itervalues():
-            if type(f).__name__ != 'function':
-                continue
-            if '_matched_by' not in f.func_dict:
-                continue
-            pattern = f.func_dict['_matched_by']
-            dct['_handlers'].append((pattern, f))
+        dct['_handlers'] = [(_get_matching_pattern(f), f)
+                            for f in dct.itervalues() if _is_marked(f)]
 
         return super(_BaseCommandMeta, meta).__new__(meta, name, bases, dct)
-
-    def __init__(cls, name, bases, dct):
-        return super(_BaseCommandMeta, cls).__init__(name, bases, dct)
 
 
 class BaseCommand(object):
