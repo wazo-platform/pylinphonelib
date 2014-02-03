@@ -123,11 +123,11 @@ class RegisterCommand(BaseCommand):
             and self._hostname == other._hostname
         )
 
-    @pattern('Registration on sip:.* successful.')
+    @pattern('Registration on <?sip:.*>? successful.')
     def handle_success(self):
         pass
 
-    @pattern('Registration on sip:.* failed:.*')
+    @pattern('Registration on <?sip:.*>? failed:.*')
     def handle_failure(self):
         raise LinphoneException('Registration failed')
 
