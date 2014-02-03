@@ -51,6 +51,7 @@ class CallCommand(BaseCommand):
 
     @pattern('Call answered by <sip:.*>.')
     @pattern('Remote ringing.')
+    @pattern('Call \d+ to <sip:.*> ringing.')
     def handle_success(self):
         pass
 
