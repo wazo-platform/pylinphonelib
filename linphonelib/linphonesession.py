@@ -23,6 +23,7 @@ from contextlib import contextmanager
 from functools import wraps
 from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
+from linphonelib.commands import QuitCommand
 from linphonelib.commands import HangupCommand
 from linphonelib.commands import HookStatusCommand
 from linphonelib.commands import RegisterCommand
@@ -91,7 +92,9 @@ sip_port=%(port)s
             os.unlink(self._config_filename)
 
         if self._process:
-            if not self._process.terminate(force=True):
+            self.execute(QuitCommand())
+
+        if self._process.isalive() and not self._process.terminate(force=True):
                 raise LinphoneException('Failed to terminate the linphone process')
 
     def execute(self, cmd):

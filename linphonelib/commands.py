@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+import pexpect
 
 from linphonelib.exceptions import ExtensionNotFoundException
 from linphonelib.exceptions import LinphoneException
@@ -153,3 +154,16 @@ class UnregisterCommand(BaseCommand):
 
     def _build_command_string(self):
         return 'unregister'
+
+
+class QuitCommand(BaseCommand):
+
+    def __eq__(self, other):
+        return type(other) == type(self)
+
+    @pattern(pexpect.EOF)
+    def handle_success(self):
+        pass
+
+    def _build_command_string(self):
+        return 'quit'
