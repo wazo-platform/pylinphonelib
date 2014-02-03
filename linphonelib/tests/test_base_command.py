@@ -82,6 +82,16 @@ class TestBaseCommandHandlers(TestCase):
 
         assert_that(s._param_list(), contains_inanyorder('lol1', 'lol2'))
 
+    def test_multiple_pattern_on_the_same_handler(self):
+        class S(BaseCommand):
+            @pattern(['lol1', 'lol2'])
+            def f1(self):
+                pass
+
+        s = S()
+
+        assert_that(s._param_list(), contains_inanyorder('lol1', 'lol2'))
+
     def test_that_handlers_can_be_defined_in_init(self):
         class S(BaseCommand):
             def __init__(self):
@@ -94,16 +104,18 @@ class TestBaseCommandHandlers(TestCase):
     def test_that_handlers_can_be_defined_in_init_and_as_decorators(self):
         class S(BaseCommand):
             def __init__(self):
-                self.add_handler(sentinel.init, lambda: None)
+                self.add_handler('init', lambda: None)
 
-            @pattern(sentinel.decorator)
+            @pattern('decorator')
             def handler(self):
                 pass
 
         s = S()
 
+        print s._handlers
+
         assert_that(s._param_list(),
-                    contains_inanyorder(sentinel.init, sentinel.decorator))
+                    contains_inanyorder('init', 'decorator'))
 
 
 class TestBaseCommandExceptions(TestCase):

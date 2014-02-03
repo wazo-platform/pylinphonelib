@@ -27,27 +27,32 @@ _PATTERN_MARK = '_matched_by'
 _MatchPair = namedtuple('_MatchPair', ['pattern', 'function'])
 
 
-def _mark_function(f, pattern):
-    f.func_dict[_PATTERN_MARK] = pattern
+def _mark_function(f, patterns):
+    if _PATTERN_MARK not in f.func_dict:
+        f.func_dict[_PATTERN_MARK] = []
+    f.func_dict[_PATTERN_MARK].extend(patterns)
 
 
 def _is_marked(f):
     return type(f).__name__ == 'function' and _PATTERN_MARK in f.func_dict
 
 
-def _get_matching_pattern(f):
+def _get_matching_patterns(f):
     return f.func_dict[_PATTERN_MARK]
 
 
-def pattern(pattern):
+def pattern(patterns):
     """
     mark decorated function objects to be added to _handlers at object
     initialization.
     """
+    if type(patterns) is not list:
+        patterns = [patterns]
+
     def decorator(f):
         def decorated(*args, **kwargs):
             return f(*args, **kwargs)
-        _mark_function(decorated, pattern)
+        _mark_function(decorated, patterns)
         return decorated
     return decorator
 
@@ -59,8 +64,14 @@ class _BaseCommandMeta(type):
         add _handlers to the BaseCommand and add each decorated @pattern
         function to the _handlers
         """
-        dct['_handlers'] = [_MatchPair(_get_matching_pattern(f), f)
-                            for f in dct.itervalues() if _is_marked(f)]
+        pairs = []
+        for f in dct.itervalues():
+            if not _is_marked(f):
+                continue
+            for pattern in _get_matching_patterns(f):
+                pairs.append(_MatchPair(pattern, f))
+
+        dct['_handlers'] = pairs
 
         return super(_BaseCommandMeta, meta).__new__(meta, name, bases, dct)
 

@@ -49,9 +49,7 @@ class CallCommand(BaseCommand):
     def __eq__(self, other):
         return self._exten == other._exten
 
-    @pattern('Call answered by <sip:.*>.')
-    @pattern('Remote ringing.')
-    @pattern('Call \d+ to <sip:.*> ringing.')
+    @pattern(['Call answered by <sip:.*>.', 'Remote ringing.', 'Call \d+ to <sip:.*> ringing.'])
     def handle_success(self):
         pass
 
@@ -79,8 +77,7 @@ class HangupCommand(BaseCommand):
     def handle_no_active_calls(self):
         raise NoActiveCallException()
 
-    @pattern('Could not stop the call with id \d+')
-    @pattern('Could not stop the active call.')
+    @pattern(['Could not stop the call with id \d+', 'Could not stop the active call.'])
     def handle_count_not_stop_the_call(self):
         raise LinphoneException('Hangup failed')
 
