@@ -130,13 +130,17 @@ sip_port=%s
         assert_that(filename, equal_to(self._filename))
 
     @patch('os.path.exists', Mock(return_value=True))
+    @patch('linphonelib.linphonesession.QuitCommand')
     @patch('os.unlink')
-    def test_cleanup(self, mock_unlink):
+    def test_cleanup(self, mock_unlink, QuitCommand):
         s = _Shell(sentinel.port)
         s._config_filename = self._filename
         child = s._process = Mock(pexpect.spawn)
+        command = QuitCommand.return_value
+
+        child.isalive.return_value = False
 
         del s
 
         mock_unlink.assert_called_once_with(self._filename)
-        child.terminate.assert_called_once_with(force=True)
+        command.execute.assert_called_once_with(child)
