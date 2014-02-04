@@ -28,7 +28,6 @@ from linphonelib.commands import HangupCommand
 from linphonelib.commands import HookStatusCommand
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
-from linphonelib.exceptions import LinphoneException
 
 
 def _execute(f):
@@ -93,9 +92,8 @@ sip_port=%(port)s
 
         if self._process:
             self.execute(QuitCommand())
-
-        if self._process.isalive() and not self._process.terminate(force=True):
-                raise LinphoneException('Failed to terminate the linphone process')
+            if self._process.isalive():
+                self._process.terminate(force=True)
 
     def execute(self, cmd):
         if not self._process:
