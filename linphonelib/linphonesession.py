@@ -99,7 +99,7 @@ sip_port=%(port)s
         if not self._process:
             self._start()
 
-        cmd.execute(self._process)
+        return cmd.execute(self._process)
 
     def _start(self):
         self._process = pexpect.spawn('linphonec -c %s' % self._create_config_file())

@@ -90,7 +90,7 @@ class BaseCommand(object):
         except pexpect.EOF:
             raise LinphoneEOFException(self.__class__.__name__)
         else:
-            self._handle_result(result)
+            return self._handle_result(result)
 
     def add_handler(self, pattern, function):
         self._handlers.append(_MatchPair(pattern, function))
@@ -99,4 +99,4 @@ class BaseCommand(object):
         return [pair.pattern for pair in self._handlers]
 
     def _handle_result(self, result):
-        self._handlers[result].function(self)
+        return self._handlers[result].function(self)
