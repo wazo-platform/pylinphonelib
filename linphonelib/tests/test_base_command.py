@@ -112,8 +112,6 @@ class TestBaseCommandHandlers(TestCase):
 
         s = S()
 
-        print s._handlers
-
         assert_that(s._param_list(),
                     contains_inanyorder('init', 'decorator'))
 
