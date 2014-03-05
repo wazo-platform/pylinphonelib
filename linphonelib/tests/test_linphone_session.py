@@ -19,6 +19,7 @@ import pexpect
 
 from hamcrest import assert_that
 from hamcrest import equal_to
+from hamcrest import same_instance
 from linphonelib.base_command import BaseCommand
 from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
@@ -87,9 +88,10 @@ class TestShell(TestCase):
         s._process = Mock(pexpect.spawn)
         cmd = Mock(BaseCommand)
 
-        s.execute(cmd)
+        result = s.execute(cmd)
 
         cmd.execute.assert_called_once_with(s._process)
+        assert_that(result, same_instance(cmd.execute.return_value))
 
     def test_start(self):
         launch_command = 'linphonec -c %s' % self._filename
