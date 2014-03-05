@@ -83,6 +83,7 @@ class TestShell(TestCase):
     def setUp(self):
         self._filename = '/tmp/abcdef'
 
+    @patch('linphonelib.linphonesession.QuitCommand', Mock())
     def test_execute(self):
         s = _Shell(sentinel.port)
         s._process = Mock(pexpect.spawn)
@@ -93,6 +94,7 @@ class TestShell(TestCase):
         cmd.execute.assert_called_once_with(s._process)
         assert_that(result, same_instance(cmd.execute.return_value))
 
+    @patch('linphonelib.linphonesession.QuitCommand', Mock())
     def test_start(self):
         launch_command = 'linphonec -c %s' % self._filename
         s = _Shell(sentinel.port)
