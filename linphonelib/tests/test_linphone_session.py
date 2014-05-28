@@ -96,7 +96,7 @@ class TestShell(TestCase):
 
     @patch('linphonelib.linphonesession.QuitCommand', Mock())
     def test_start(self):
-        launch_command = 'linphonec -c %s' % self._filename
+        launch_command = 'sh -c "linphonec -c %s" &' % self._filename
         s = _Shell(sentinel.port)
         s._create_config_file = Mock(return_value=self._filename)
 
