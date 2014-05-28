@@ -39,11 +39,11 @@ def _execute(f):
 
 class Session(object):
 
-    def __init__(self, uname, secret, hostname, local_port, logfile=None):
+    def __init__(self, uname, secret, hostname, local_sip_port, local_rtp_port, logfile=None):
         self._uname = uname
         self._secret = secret
         self._hostname = hostname
-        self._linphone_shell = _Shell(local_port, logfile)
+        self._linphone_shell = _Shell(local_sip_port, local_rtp_port, logfile)
 
     def __str__(self):
         return 'Session %(_uname)s@%(_hostname)s' % self.__dict__
@@ -77,11 +77,15 @@ class _Shell(object):
 
     _CONFIG_FILE_CONTENT = '''\
 [sip]
-sip_port=%(port)s
+sip_port={sip_port}
+
+[rtp]
+audio_rtp_port={rtp_port}
 '''
 
-    def __init__(self, port, logfile=None):
-        self._port = port
+    def __init__(self, sip_port, rtp_port, logfile=None):
+        self._sip_port = sip_port
+        self._rtp_port = rtp_port
         self._process = None
         self._config_filename = ''
         self._logfile = logfile
@@ -110,7 +114,7 @@ sip_port=%(port)s
         if self._config_filename:
             return self._config_filename
 
-        content = self._CONFIG_FILE_CONTENT % {'port': self._port}
+        content = self._CONFIG_FILE_CONTENT.format(sip_port=self._sip_port, rtp_port=self._rtp_port)
 
         with tempfile.NamedTemporaryFile(delete=False) as f:
             self._config_filename = f.name
