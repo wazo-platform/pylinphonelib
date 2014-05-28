@@ -91,13 +91,13 @@ audio_rtp_port={rtp_port}
         self._logfile = logfile
 
     def __del__(self):
-        if os.path.exists(self._config_filename):
-            os.unlink(self._config_filename)
-
         if self._process:
             self.execute(QuitCommand())
             if self._process.isalive():
                 self._process.terminate(force=True)
+
+        if os.path.exists(self._config_filename):
+            os.unlink(self._config_filename)
 
     def execute(self, cmd):
         if not self._process:
