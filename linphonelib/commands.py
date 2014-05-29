@@ -17,7 +17,8 @@
 
 import pexpect
 
-from linphonelib.exceptions import ExtensionNotFoundException
+from linphonelib.exceptions import ExtensionNotFoundException, \
+    CallDeclinedException
 from linphonelib.exceptions import LinphoneException
 from linphonelib.exceptions import NoActiveCallException
 from linphonelib.base_command import BaseCommand
@@ -58,6 +59,10 @@ class CallCommand(BaseCommand):
     def handle_not_found(self):
         raise ExtensionNotFoundException('Failed to call %s' % self._exten)
 
+    @pattern('Call declined')
+    def handle_call_declined(self):
+        raise CallDeclinedException('Call to %s declined' % self._exten)
+
     def _build_command_string(self):
         return 'call %s' % self._exten
 
@@ -87,6 +92,7 @@ class HookStatus(object):
     OFFHOOK = 0
     RINGING = 1
     ANSWERED = 2
+    RINGBACK_TONE = 3
 
 
 class HookStatusCommand(BaseCommand):
@@ -98,11 +104,15 @@ class HookStatusCommand(BaseCommand):
     def handle_offhook(self):
         return HookStatus.OFFHOOK
 
+    @pattern('hook=ringing sip:.*')
+    def handle_ringback_tone(self):
+        return HookStatus.RINGBACK_TONE
+
     @pattern('Incoming call from ".*" <sip:.*>')
     def handle_ringing(self):
         return HookStatus.RINGING
 
-    @pattern('hook=answered duration=\d+ ".*" <sip:.*>')
+    @pattern(['hook=answered duration=\d+ ".*" <sip:.*>', 'Call out, hook=.* duration=.*'])
     def handle_answered(self):
         return HookStatus.ANSWERED
 

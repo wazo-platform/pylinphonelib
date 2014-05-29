@@ -27,7 +27,8 @@ from linphonelib.commands import HookStatusCommand
 from linphonelib.commands import HookStatus
 from linphonelib.commands import RegisterCommand
 from linphonelib.commands import UnregisterCommand
-from linphonelib.exceptions import ExtensionNotFoundException
+from linphonelib.exceptions import ExtensionNotFoundException, \
+    CallDeclinedException
 from mock import sentinel
 from unittest import TestCase
 
@@ -52,6 +53,12 @@ class TestCallCommand(TestCase):
         result = CallCommand('1001')._build_command_string()
 
         assert_that(result, equal_to('call 1001'))
+
+    def test_handle_result_declined(self):
+        c = CallCommand(sentinel.exten)
+
+        self.assertRaises(CallDeclinedException,
+                          c.handle_call_declined)
 
 
 class TestHangupCommand(TestCase):
@@ -78,6 +85,11 @@ class TestHookStatus(TestCase):
         c = HookStatusCommand()
 
         assert_that(c.handle_answered(), equal_to(HookStatus.ANSWERED))
+
+    def test_phone_ringback_tone(self):
+        c = HookStatusCommand()
+
+        assert_that(c.handle_ringback_tone(), equal_to(HookStatus.RINGBACK_TONE))
 
     def test_phone_ringing(self):
         c = HookStatusCommand()

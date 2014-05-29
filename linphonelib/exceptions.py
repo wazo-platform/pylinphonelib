@@ -32,5 +32,9 @@ class ExtensionNotFoundException(LinphoneException):
     pass
 
 
+class CallDeclinedException(LinphoneException):
+    pass
+
+
 class NoActiveCallException(LinphoneException):
     pass
