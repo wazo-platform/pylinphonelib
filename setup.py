@@ -6,6 +6,7 @@ pylinphonelib is a library to drive a linphonec instance from python
 """
 
 from setuptools import setup
+from setuptools import find_packages
 
 setup(
     name='pylinphonelib',
@@ -15,6 +16,6 @@ setup(
     author_email='xivo-dev@lists.proformatique.com',
     description='A library to drive linphonec',
     long_description=__doc__,
-    packages=['linphonelib'],
+    packages=find_packages(),
     platforms='any',
 )
