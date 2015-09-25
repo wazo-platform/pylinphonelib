@@ -75,6 +75,8 @@ class Session(object):
 
 class _Shell(object):
 
+    _DOCKER_IMG = "xivo-linphone"
+
     _CONFIG_FILE_CONTENT = '''\
 [sip]
 sip_port={sip_port}
@@ -106,7 +108,11 @@ audio_rtp_port={rtp_port}
         return cmd.execute(self._process)
 
     def _start(self):
-        self._process = pexpect.spawn('sh -c "linphonec -c %s" &' % self._create_config_file())
+        cmd = "docker run -ti -v {}:/root/.linphonerc {}"
+        config_file = self._create_config_file()
+
+        self._process = pexpect.spawn(cmd.format(config_file,
+                                                 self._DOCKER_IMG))
         if self._logfile:
             self._process.logfile = self._logfile
 
