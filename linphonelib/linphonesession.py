@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2014 Avencall
+# Copyright (C) 2013-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -75,6 +75,8 @@ class Session(object):
 
 class _Shell(object):
 
+    _DOCKER_IMG = "xivo-linphone"
+
     _CONFIG_FILE_CONTENT = '''\
 [sip]
 sip_port={sip_port}
@@ -106,7 +108,11 @@ audio_rtp_port={rtp_port}
         return cmd.execute(self._process)
 
     def _start(self):
-        self._process = pexpect.spawn('sh -c "linphonec -c %s" &' % self._create_config_file())
+        cmd = "docker run --rm -ti -v {linphonerc}:/root/.linphonerc {docker_image}"
+        config_file = self._create_config_file()
+
+        self._process = pexpect.spawn(cmd.format(linphonerc=config_file,
+                                                 docker_image=self._DOCKER_IMG))
         if self._logfile:
             self._process.logfile = self._logfile
 
