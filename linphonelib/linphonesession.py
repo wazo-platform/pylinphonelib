@@ -108,7 +108,7 @@ audio_rtp_port={rtp_port}
         return cmd.execute(self._process)
 
     def _start(self):
-        cmd = "docker run -ti -v {linphonerc}:/root/.linphonerc {docker_image}"
+        cmd = "docker run --rm -ti -v {linphonerc}:/root/.linphonerc {docker_image}"
         config_file = self._create_config_file()
 
         self._process = pexpect.spawn(cmd.format(linphonerc=config_file,
