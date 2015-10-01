@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2014 Avencall
+# Copyright (C) 2013-2015 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ class TestShell(TestCase):
 
     @patch('linphonelib.linphonesession.QuitCommand', Mock())
     def test_start(self):
-        launch_command = 'sh -c "linphonec -c %s" &' % self._filename
+        launch_command = 'docker run --rm -ti -v {linphonerc}:/root/.linphonerc xivo-linphone'
         s = _Shell(sentinel.port, sentinel.rtp_port)
         s._create_config_file = Mock(return_value=self._filename)
 
@@ -105,7 +105,7 @@ class TestShell(TestCase):
             s._start()
 
             assert_that(s._process, equal_to(mock_spawn))
-            spawn.assert_called_once_with(launch_command)
+            spawn.assert_called_once_with(launch_command.format(linphonerc=self._filename))
 
     @patch('tempfile.NamedTemporaryFile', create=True, return_value=MagicMock(spec=file))
     def test_create_config_file(self, mock_open):
