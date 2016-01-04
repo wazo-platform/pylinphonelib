@@ -1,4 +1,4 @@
-FROM debian:wheezy
+FROM debian:jessie
 MAINTAINER XiVO Team "dev@avencall.com"
 
 ENV DEBIAN_FRONTEND noninteractive
