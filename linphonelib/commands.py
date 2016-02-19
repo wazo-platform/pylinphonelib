@@ -22,14 +22,13 @@ from linphonelib.exceptions import (ExtensionNotFoundException,
                                     CallDeclinedException,
                                     LinphoneException,
                                     NoActiveCallException)
-from linphonelib.base_command import BaseCommand
+from linphonelib.base_command import BaseCommand, SimpleCommand
 from linphonelib.base_command import pattern
 
 
-class AnswerCommand(BaseCommand):
+class AnswerCommand(SimpleCommand):
 
-    def __eq__(self, other):
-        return type(self) == type(other)
+    command = 'answer'
 
     @pattern('Call \d+ with .* connected.')
     def handle_connected(self):
@@ -38,10 +37,6 @@ class AnswerCommand(BaseCommand):
     @pattern('There are no calls to answer.')
     def handle_no_call(self):
         raise NoActiveCallException()
-
-    @staticmethod
-    def _build_command_string():
-        return 'answer'
 
 
 class CallCommand(BaseCommand):
@@ -68,13 +63,9 @@ class CallCommand(BaseCommand):
         return 'call %s' % self._exten
 
 
-class HangupCommand(BaseCommand):
+class HangupCommand(SimpleCommand):
 
-    def __eq__(self, other):
-        return type(self) == type(other)
-
-    def _build_command_string(self):
-        return 'terminate'
+    command = 'terminate'
 
     @pattern('Call ended')
     def handle_success(self):
@@ -89,10 +80,9 @@ class HangupCommand(BaseCommand):
         raise LinphoneException('Hangup failed')
 
 
-class HoldCommand(BaseCommand):
+class HoldCommand(SimpleCommand):
 
-    def _build_command_string(self):
-        return 'pause'
+    command = 'pause'
 
     @pattern('Call \d+ with <sip:.*> is now paused.')
     def handle_success(self):
@@ -110,10 +100,9 @@ class HookStatus(object):
     RINGBACK_TONE = 3
 
 
-class HookStatusCommand(BaseCommand):
+class HookStatusCommand(SimpleCommand):
 
-    def __eq__(self, other):
-        return self.__class__ == other.__class__
+    command = 'status hook'
 
     @pattern('hook=offhook')
     def handle_offhook(self):
@@ -130,9 +119,6 @@ class HookStatusCommand(BaseCommand):
     @pattern(['hook=answered duration=\d+ ".*" <sip:.*>', 'Call out, hook=.* duration=.*'])
     def handle_answered(self):
         return HookStatus.ANSWERED
-
-    def _build_command_string(self):
-        return 'status hook'
 
 
 class RegisterCommand(BaseCommand):
@@ -164,7 +150,9 @@ class RegisterCommand(BaseCommand):
                              'host': self._hostname}
 
 
-class ResumeCommand(BaseCommand):
+class ResumeCommand(SimpleCommand):
+
+    command = 'resume'
 
     @pattern('Call resumed.')
     def handle_success(self):
@@ -179,10 +167,9 @@ class ResumeCommand(BaseCommand):
         raise CallAlreadyInProgressException()
 
 
-class UnregisterCommand(BaseCommand):
+class UnregisterCommand(SimpleCommand):
 
-    def __eq__(self, other):
-        return type(other) == type(self)
+    command = 'unregister'
 
     @pattern('Unregistration on sip:.* done.')
     def handle_success(self):
@@ -192,18 +179,11 @@ class UnregisterCommand(BaseCommand):
     def handle_not_registered(self):
         raise LinphoneException('Unregister failed')
 
-    def _build_command_string(self):
-        return 'unregister'
 
+class QuitCommand(SimpleCommand):
 
-class QuitCommand(BaseCommand):
-
-    def __eq__(self, other):
-        return type(other) == type(self)
+    command = 'quit'
 
     @pattern(pexpect.EOF)
     def handle_success(self):
         pass
-
-    def _build_command_string(self):
-        return 'quit'

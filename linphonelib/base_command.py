@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2014 Avencall
+# Copyright (C) 2014-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -100,3 +100,18 @@ class BaseCommand(object):
 
     def _handle_result(self, result):
         return self._handlers[result].function(self)
+
+
+class SimpleCommand(object):
+
+    command = None
+
+    def __eq__(self, other):
+        return type(self) == type(other)
+
+    def __ne__(self, other):
+        return type(self) != type(other)
+
+    def _build_command_string(self):
+        assert self.command is not None, '{} should have a command field'.format(self.__class__.__name__)
+        return self.command
