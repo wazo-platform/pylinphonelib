@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2015 Avencall
+# Copyright (C) 2013-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,13 +21,15 @@ import tempfile
 
 from contextlib import contextmanager
 from functools import wraps
-from linphonelib.commands import AnswerCommand
-from linphonelib.commands import CallCommand
-from linphonelib.commands import QuitCommand
-from linphonelib.commands import HangupCommand
-from linphonelib.commands import HookStatusCommand
-from linphonelib.commands import RegisterCommand
-from linphonelib.commands import UnregisterCommand
+from linphonelib.commands import (AnswerCommand,
+                                  CallCommand,
+                                  QuitCommand,
+                                  HangupCommand,
+                                  HoldCommand,
+                                  HookStatusCommand,
+                                  RegisterCommand,
+                                  ResumeCommand,
+                                  UnregisterCommand)
 
 
 def _execute(f):
@@ -61,12 +63,20 @@ class Session(object):
         return HangupCommand()
 
     @_execute
+    def hold(self):
+        return HoldCommand()
+
+    @_execute
     def hook_status(self):
         return HookStatusCommand()
 
     @_execute
     def register(self):
         return RegisterCommand(self._uname, self._secret, self._hostname)
+
+    @_execute
+    def resume(self):
+        return ResumeCommand()
 
     @_execute
     def unregister(self):

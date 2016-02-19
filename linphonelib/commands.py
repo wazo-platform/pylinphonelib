@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2014 Avencall
+# Copyright (C) 2013-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,10 +17,11 @@
 
 import pexpect
 
-from linphonelib.exceptions import ExtensionNotFoundException, \
-    CallDeclinedException
-from linphonelib.exceptions import LinphoneException
-from linphonelib.exceptions import NoActiveCallException
+from linphonelib.exceptions import (ExtensionNotFoundException,
+                                    CallAlreadyInProgressException,
+                                    CallDeclinedException,
+                                    LinphoneException,
+                                    NoActiveCallException)
 from linphonelib.base_command import BaseCommand
 from linphonelib.base_command import pattern
 
@@ -88,6 +89,20 @@ class HangupCommand(BaseCommand):
         raise LinphoneException('Hangup failed')
 
 
+class HoldCommand(BaseCommand):
+
+    def _build_command_string(self):
+        return 'pause'
+
+    @pattern('Call \d+ with <sip:.*> is now paused.')
+    def handle_success(self):
+        pass
+
+    @pattern('you can only pause when a call is in process')
+    def handle_no_call_in_progress(self):
+        raise NoActiveCallException()
+
+
 class HookStatus(object):
     OFFHOOK = 0
     RINGING = 1
@@ -147,6 +162,21 @@ class RegisterCommand(BaseCommand):
         return cmd_string % {'name': self._uname,
                              'passwd': self._passwd,
                              'host': self._hostname}
+
+
+class ResumeCommand(BaseCommand):
+
+    @pattern('Call resumed.')
+    def handle_success(self):
+        pass
+
+    @pattern('There is already a call in process pause or stop it first')
+    def handle_already_on_a_call(self):
+        raise CallAlreadyInProgressException()
+
+    @pattern('There is no calls at this time.')
+    def handle_no_call_to_resume(self):
+        raise CallAlreadyInProgressException()
 
 
 class UnregisterCommand(BaseCommand):

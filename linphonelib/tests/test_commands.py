@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2014 Avencall
+# Copyright (C) 2013-2016 Avencall
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ from linphonelib import NoActiveCallException
 from linphonelib.commands import AnswerCommand
 from linphonelib.commands import CallCommand
 from linphonelib.commands import HangupCommand
+from linphonelib.commands import HoldCommand
 from linphonelib.commands import HookStatusCommand
 from linphonelib.commands import HookStatus
 from linphonelib.commands import RegisterCommand
@@ -59,6 +60,14 @@ class TestCallCommand(TestCase):
 
         self.assertRaises(CallDeclinedException,
                           c.handle_call_declined)
+
+
+class TestHoldCommand(TestCase):
+
+    def test_build_command_string(self):
+        result = HoldCommand()._build_command_string()
+
+        assert_that(result, equal_to('pause'))
 
 
 class TestHangupCommand(TestCase):
