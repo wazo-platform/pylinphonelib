@@ -102,7 +102,7 @@ class BaseCommand(object):
         return self._handlers[result].function(self)
 
 
-class SimpleCommand(object):
+class SimpleCommand(BaseCommand):
 
     command = None
 
