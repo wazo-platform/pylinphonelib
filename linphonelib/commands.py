@@ -167,6 +167,26 @@ class ResumeCommand(SimpleCommand):
         raise CallAlreadyInProgressException()
 
 
+class TransferCommand(BaseCommand):
+
+    def __init__(self, exten):
+        self._exten = exten
+
+    def __eq__(self, other):
+        return self._exten == other._exten
+
+    @pattern('Call ended')
+    def handle_success(self):
+        pass
+
+    @pattern("No active call, please specify a call id among the ones listed by 'calls' command.")
+    def handle_no_active_call(self):
+        raise ExtensionNotFoundException('Failed to call %s' % self._exten)
+
+    def _build_command_string(self):
+        return 'transfer %s' % self._exten
+
+
 class UnregisterCommand(SimpleCommand):
 
     command = 'unregister'

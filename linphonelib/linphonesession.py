@@ -29,7 +29,8 @@ from linphonelib.commands import (AnswerCommand,
                                   HookStatusCommand,
                                   RegisterCommand,
                                   ResumeCommand,
-                                  UnregisterCommand)
+                                  UnregisterCommand,
+                                  TransferCommand)
 
 
 def _execute(f):
@@ -77,6 +78,10 @@ class Session(object):
     @_execute
     def resume(self):
         return ResumeCommand()
+
+    @_execute
+    def transfer(self, exten):
+        return TransferCommand(exten)
 
     @_execute
     def unregister(self):
