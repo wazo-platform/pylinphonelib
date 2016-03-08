@@ -9,3 +9,10 @@ Requirements
 ------------
 
 * linphonec
+
+
+Docker
+------
+
+It is possible to use the xivo-linphone docker image to run linphonec. To enable this
+feature, set the USE_DOCKER environment variable.
