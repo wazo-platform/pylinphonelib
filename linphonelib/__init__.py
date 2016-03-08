@@ -25,11 +25,11 @@ from linphonelib.linphonesession import registering
 
 
 __all__ = [
-    LinphoneException,
-    CommandTimeoutException,
-    LinphoneEOFException,
-    NoActiveCallException,
-    ExtensionNotFoundException,
-    Session,
-    registering
+    'LinphoneException',
+    'CommandTimeoutException',
+    'LinphoneEOFException',
+    'NoActiveCallException',
+    'ExtensionNotFoundException',
+    'Session',
+    'registering',
 ]
