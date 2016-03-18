@@ -130,9 +130,9 @@ class RegisterCommand(BaseCommand):
 
     def __eq__(self, other):
         return (
-            self._uname == other._uname
-            and self._passwd == other._passwd
-            and self._hostname == other._hostname
+            self._uname == other._uname and
+            self._passwd == other._passwd and
+            self._hostname == other._hostname
         )
 
     @pattern('Registration on <?sip:.*>? successful.')
