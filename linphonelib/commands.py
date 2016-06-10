@@ -84,7 +84,7 @@ class HoldCommand(SimpleCommand):
 
     command = 'pause'
 
-    @pattern('Call \d+ with <sip:.*> is now paused.')
+    @pattern('Call .* is now paused.')
     def handle_success(self):
         pass
 
