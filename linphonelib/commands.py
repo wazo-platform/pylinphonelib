@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2016 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -119,6 +119,20 @@ class HookStatusCommand(SimpleCommand):
     @pattern(['hook=answered duration=\d+ ".*" <sip:.*>', 'Call out, hook=.* duration=.*'])
     def handle_answered(self):
         return HookStatus.ANSWERED
+
+
+def new_is_talking_to_command(caller_id):
+    to_match = 'hook=answered duration=\d+ "{}" <sip:.*>'.format(caller_id)
+
+    class IsTalkingToCommand(SimpleCommand):
+
+        command = 'status hook'
+
+        @pattern(to_match)
+        def handle_answered(self):
+            return True
+
+    return IsTalkingToCommand
 
 
 class RegisterCommand(BaseCommand):
