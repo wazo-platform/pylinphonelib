@@ -3,4 +3,4 @@
 all: build
 
 build:
-	docker build -t xivo-linphone .
+	docker build --no-cache -t wazopbx/wazo-linphone .

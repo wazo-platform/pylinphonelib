@@ -14,5 +14,5 @@ Requirements
 Docker
 ------
 
-It is possible to use the xivo-linphone docker image to run linphonec. To enable this
+It is possible to use the wazopbx/wazo-linphone docker image to run linphonec. To enable this
 feature, set the USE_DOCKER environment variable.

@@ -96,7 +96,7 @@ class Session(object):
 
 class _Shell(object):
 
-    _DOCKER_IMG = "xivo-linphone"
+    _DOCKER_IMG = "wazopbx/wazo-linphone"
 
     _CONFIG_FILE_CONTENT = '''\
 [sip]
