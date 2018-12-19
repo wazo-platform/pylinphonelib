@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2016 Avencall
+# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ from linphonelib.commands import (AnswerCommand,
                                   HangupCommand,
                                   HoldCommand,
                                   HookStatusCommand,
+                                  new_is_talking_to_command,
                                   RegisterCommand,
                                   ResumeCommand,
                                   UnregisterCommand,
@@ -78,6 +79,11 @@ class Session(object):
     @_execute
     def resume(self):
         return ResumeCommand()
+
+    @_execute
+    def is_talking_to(self, caller_id):
+        IsTalkingToCommand = new_is_talking_to_command(caller_id)
+        return IsTalkingToCommand()
 
     @_execute
     def transfer(self, exten):
