@@ -3,13 +3,18 @@
 
 import pexpect
 
-from linphonelib.exceptions import (ExtensionNotFoundException,
-                                    CallAlreadyInProgressException,
-                                    CallDeclinedException,
-                                    LinphoneException,
-                                    NoActiveCallException)
-from linphonelib.base_command import BaseCommand, SimpleCommand
-from linphonelib.base_command import pattern
+from linphonelib.exceptions import (
+    ExtensionNotFoundException,
+    CallAlreadyInProgressException,
+    CallDeclinedException,
+    LinphoneException,
+    NoActiveCallException,
+)
+from linphonelib.base_command import (
+    BaseCommand,
+    SimpleCommand,
+    pattern,
+)
 
 
 class AnswerCommand(SimpleCommand):
@@ -39,14 +44,14 @@ class CallCommand(BaseCommand):
 
     @pattern('Not Found')
     def handle_not_found(self):
-        raise ExtensionNotFoundException('Failed to call %s' % self._exten)
+        raise ExtensionNotFoundException('Failed to call {}'.format(self._exten))
 
     @pattern('Call declined')
     def handle_call_declined(self):
-        raise CallDeclinedException('Call to %s declined' % self._exten)
+        raise CallDeclinedException('Call to {} declined'.format(self._exten))
 
     def _build_command_string(self):
-        return 'call %s' % self._exten
+        return 'call {}'.format(self._exten)
 
 
 class HangupCommand(SimpleCommand):
@@ -144,10 +149,11 @@ class RegisterCommand(BaseCommand):
         raise LinphoneException('Registration failed')
 
     def _build_command_string(self):
-        cmd_string = 'register sip:%(name)s@%(host)s %(host)s %(passwd)s'
-        return cmd_string % {'name': self._uname,
-                             'passwd': self._passwd,
-                             'host': self._hostname}
+        return 'register sip:{name}@{host} {host} {passwd}'.format(
+            name=self._uname,
+            passwd=self._passwd,
+            host=self._hostname,
+        )
 
 
 class ResumeCommand(SimpleCommand):
@@ -181,10 +187,10 @@ class TransferCommand(BaseCommand):
 
     @pattern("No active call, please specify a call id among the ones listed by 'calls' command.")
     def handle_no_active_call(self):
-        raise ExtensionNotFoundException('Failed to call %s' % self._exten)
+        raise ExtensionNotFoundException('Failed to call {}'.format(self._exten))
 
     def _build_command_string(self):
-        return 'transfer %s' % self._exten
+        return 'transfer {}'.format(self._exten)
 
 
 class UnregisterCommand(SimpleCommand):

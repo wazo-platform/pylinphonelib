@@ -7,17 +7,19 @@ import tempfile
 
 from contextlib import contextmanager
 from functools import wraps
-from linphonelib.commands import (AnswerCommand,
-                                  CallCommand,
-                                  QuitCommand,
-                                  HangupCommand,
-                                  HoldCommand,
-                                  HookStatusCommand,
-                                  new_is_talking_to_command,
-                                  RegisterCommand,
-                                  ResumeCommand,
-                                  UnregisterCommand,
-                                  TransferCommand)
+from linphonelib.commands import (
+    AnswerCommand,
+    CallCommand,
+    QuitCommand,
+    HangupCommand,
+    HoldCommand,
+    HookStatusCommand,
+    new_is_talking_to_command,
+    RegisterCommand,
+    ResumeCommand,
+    UnregisterCommand,
+    TransferCommand,
+)
 
 
 def _execute(f):
