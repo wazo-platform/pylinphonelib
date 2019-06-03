@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import pexpect
@@ -79,7 +79,7 @@ class HoldCommand(SimpleCommand):
         raise NoActiveCallException()
 
 
-class HookStatus(object):
+class HookStatus:
     OFFHOOK = 0
     RINGING = 1
     ANSWERED = 2

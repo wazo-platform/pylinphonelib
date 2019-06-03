@@ -1,4 +1,4 @@
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -27,7 +27,7 @@ def _execute(f):
     return func
 
 
-class Session(object):
+class Session:
 
     def __init__(self, uname, secret, hostname, local_sip_port, local_rtp_port, logfile=None):
         self._uname = uname
@@ -80,7 +80,7 @@ class Session(object):
         return UnregisterCommand()
 
 
-class _Shell(object):
+class _Shell:
 
     _DOCKER_IMG = "wazopbx/wazo-linphone"
 
