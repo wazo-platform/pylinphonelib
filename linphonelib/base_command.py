@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014-2016 Avencall
+# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import pexpect
@@ -14,18 +14,18 @@ _PATTERN_MARK = '_matched_by'
 _MatchPair = namedtuple('_MatchPair', ['pattern', 'function'])
 
 
-def _mark_function(f, patterns):
-    if _PATTERN_MARK not in f.func_dict:
-        f.func_dict[_PATTERN_MARK] = []
-    f.func_dict[_PATTERN_MARK].extend(patterns)
+def _mark_function(function, patterns):
+    if _PATTERN_MARK not in function.__dict__:
+        function.__dict__[_PATTERN_MARK] = []
+    function.__dict__[_PATTERN_MARK].extend(patterns)
 
 
-def _is_marked(f):
-    return type(f).__name__ == 'function' and _PATTERN_MARK in f.func_dict
+def _is_marked(function):
+    return type(function).__name__ == 'function' and _PATTERN_MARK in function.__dict__
 
 
-def _get_matching_patterns(f):
-    return f.func_dict[_PATTERN_MARK]
+def _get_matching_patterns(function):
+    return function.__dict__[_PATTERN_MARK]
 
 
 def pattern(patterns):
@@ -52,20 +52,18 @@ class _BaseCommandMeta(type):
         function to the _handlers
         """
         pairs = []
-        for f in dct.itervalues():
-            if not _is_marked(f):
+        for function in dct.values():
+            if not _is_marked(function):
                 continue
-            for pattern in _get_matching_patterns(f):
-                pairs.append(_MatchPair(pattern, f))
+            for pattern in _get_matching_patterns(function):
+                pairs.append(_MatchPair(pattern, function))
 
         dct['_handlers'] = pairs
 
         return super(_BaseCommandMeta, meta).__new__(meta, name, bases, dct)
 
 
-class BaseCommand(object):
-
-    __metaclass__ = _BaseCommandMeta
+class BaseCommand(metaclass=_BaseCommandMeta):
 
     def execute(self, process):
         cmd_string = self._build_command_string()

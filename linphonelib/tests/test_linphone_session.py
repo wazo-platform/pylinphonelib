@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2013-2016 Avencall
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import pexpect
@@ -94,7 +94,7 @@ class TestShell(TestCase):
             assert_that(s._process, equal_to(mock_spawn))
             spawn.assert_called_once_with(launch_command.format(linphonerc=self._filename))
 
-    @patch('tempfile.NamedTemporaryFile', create=True, return_value=MagicMock(spec=file))
+    @patch('tempfile.NamedTemporaryFile', create=True, return_value=MagicMock())
     def test_create_config_file(self, mock_open):
         sip_port = 5061
         rtp_port = 7078

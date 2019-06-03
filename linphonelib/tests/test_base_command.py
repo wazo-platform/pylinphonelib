@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014 Avencall
+# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import pexpect
@@ -38,7 +38,7 @@ class TestBaseCommandResultHandling(TestCase):
 
     @staticmethod
     def _index_of(pattern, handlers):
-        for i in xrange(len(handlers)):
+        for i in range(len(handlers)):
             if handlers[i][0] == pattern:
                 return i
         raise LookupError('%s is not a member of handlers' % pattern)
