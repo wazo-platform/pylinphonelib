@@ -135,7 +135,7 @@ audio_rtp_port={rtp_port}
 
         content = self._CONFIG_FILE_CONTENT.format(sip_port=self._sip_port, rtp_port=self._rtp_port)
 
-        with tempfile.NamedTemporaryFile(delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode='w+', delete=False) as f:
             self._config_filename = f.name
             f.write(content)
 
