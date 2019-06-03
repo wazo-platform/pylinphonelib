@@ -117,15 +117,16 @@ audio_rtp_port={rtp_port}
         return cmd.execute(self._process)
 
     def _start(self):
-        if os.getenv('USE_DOCKER'):
-            cmd = "docker run --rm -ti -v {linphonerc}:/root/.linphonerc {docker_image}"
-        else:
-            cmd = 'sh -c "linphonec -c {linphonerc}" &'
-
         config_file = self._create_config_file()
+        if os.getenv('USE_DOCKER'):
+            cmd = "docker run --rm -ti -v {linphonerc}:/root/.linphonerc {docker_image}".format(
+                linphonerc=config_file,
+                docker_image=self._DOCKER_IMG,
+            )
+        else:
+            cmd = 'sh -c "linphonec -c {linphonerc}" &'.format(linphonerc=config_file)
 
-        self._process = pexpect.spawn(cmd.format(linphonerc=config_file,
-                                                 docker_image=self._DOCKER_IMG))
+        self._process = pexpect.spawn(cmd, encoding='utf-8')
         if self._logfile:
             self._process.logfile = self._logfile
 
