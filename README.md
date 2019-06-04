@@ -14,5 +14,7 @@ Requirements
 Docker
 ------
 
+## Since PJSIP, the docker doesn't work for acceptance tests
+
 It is possible to use the wazopbx/wazo-linphone docker image to run linphonec. To enable this
 feature, set the USE_DOCKER environment variable.
