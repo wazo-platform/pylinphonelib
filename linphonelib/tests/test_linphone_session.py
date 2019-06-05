@@ -91,7 +91,7 @@ class TestShell(TestCase):
             s._start()
 
             assert_that(s._process, equal_to(mock_spawn))
-            spawn.assert_called_once_with(launch_command.format(linphonerc=self._filename))
+            spawn.assert_called_once_with(launch_command.format(linphonerc=self._filename), encoding='utf-8')
 
     @patch('tempfile.NamedTemporaryFile', create=True, return_value=MagicMock())
     def test_create_config_file(self, mock_open):
