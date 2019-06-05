@@ -1,19 +1,5 @@
-# -*- coding: utf-8 -*-
-
-# Copyright (C) 2013-2016 Avencall
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import pexpect
 
@@ -107,7 +93,7 @@ class TestShell(TestCase):
             assert_that(s._process, equal_to(mock_spawn))
             spawn.assert_called_once_with(launch_command.format(linphonerc=self._filename))
 
-    @patch('tempfile.NamedTemporaryFile', create=True, return_value=MagicMock(spec=file))
+    @patch('tempfile.NamedTemporaryFile', create=True, return_value=MagicMock())
     def test_create_config_file(self, mock_open):
         sip_port = 5061
         rtp_port = 7078

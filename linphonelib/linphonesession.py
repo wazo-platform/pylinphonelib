@@ -1,19 +1,5 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2013-2018 The Wazo Authors  (see the AUTHORS file)
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>
+# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
 import pexpect
@@ -21,17 +7,19 @@ import tempfile
 
 from contextlib import contextmanager
 from functools import wraps
-from linphonelib.commands import (AnswerCommand,
-                                  CallCommand,
-                                  QuitCommand,
-                                  HangupCommand,
-                                  HoldCommand,
-                                  HookStatusCommand,
-                                  new_is_talking_to_command,
-                                  RegisterCommand,
-                                  ResumeCommand,
-                                  UnregisterCommand,
-                                  TransferCommand)
+from linphonelib.commands import (
+    AnswerCommand,
+    CallCommand,
+    QuitCommand,
+    HangupCommand,
+    HoldCommand,
+    HookStatusCommand,
+    new_is_talking_to_command,
+    RegisterCommand,
+    ResumeCommand,
+    UnregisterCommand,
+    TransferCommand,
+)
 
 
 def _execute(f):
@@ -41,7 +29,7 @@ def _execute(f):
     return func
 
 
-class Session(object):
+class Session:
 
     def __init__(self, uname, secret, hostname, local_sip_port, local_rtp_port, logfile=None):
         self._uname = uname
@@ -94,7 +82,7 @@ class Session(object):
         return UnregisterCommand()
 
 
-class _Shell(object):
+class _Shell:
 
     _DOCKER_IMG = "wazopbx/wazo-linphone"
 
@@ -129,15 +117,16 @@ audio_rtp_port={rtp_port}
         return cmd.execute(self._process)
 
     def _start(self):
-        if os.getenv('USE_DOCKER'):
-            cmd = "docker run --rm -ti -v {linphonerc}:/root/.linphonerc {docker_image}"
-        else:
-            cmd = 'sh -c "linphonec -c {linphonerc}" &'
-
         config_file = self._create_config_file()
+        if os.getenv('USE_DOCKER'):
+            cmd = "docker run --rm -ti -v {linphonerc}:/root/.linphonerc {docker_image}".format(
+                linphonerc=config_file,
+                docker_image=self._DOCKER_IMG,
+            )
+        else:
+            cmd = 'sh -c "linphonec -c {linphonerc}" &'.format(linphonerc=config_file)
 
-        self._process = pexpect.spawn(cmd.format(linphonerc=config_file,
-                                                 docker_image=self._DOCKER_IMG))
+        self._process = pexpect.spawn(cmd, encoding='utf-8')
         if self._logfile:
             self._process.logfile = self._logfile
 
@@ -147,7 +136,7 @@ audio_rtp_port={rtp_port}
 
         content = self._CONFIG_FILE_CONTENT.format(sip_port=self._sip_port, rtp_port=self._rtp_port)
 
-        with tempfile.NamedTemporaryFile(delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode='w+', delete=False) as f:
             self._config_filename = f.name
             f.write(content)
 
