@@ -95,7 +95,7 @@ class HookStatusCommand(SimpleCommand):
 
     command = 'status hook'
 
-    @pattern('hook=offhook')
+    @pattern('hook=(offhook|on-hook)')  # linphone version: 3.6.X = offhook, 3.12.X = on-hook
     def handle_offhook(self):
         return HookStatus.OFFHOOK
 
