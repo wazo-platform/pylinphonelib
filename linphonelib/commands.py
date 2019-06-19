@@ -38,7 +38,12 @@ class CallCommand(BaseCommand):
     def __eq__(self, other):
         return self._exten == other._exten
 
-    @pattern(['Call answered by <sip:.*>.', 'Remote ringing.', 'Call \d+ to <sip:.*> ringing.'])
+    @pattern([
+        'Call answered by <sip:.*>.',  # 3.6.X
+        'Call answered by sip:.*.',  # 3.12.X
+        'Remote ringing.',
+        'Call \d+ to <sip:.*> ringing.'
+    ])
     def handle_success(self):
         pass
 
@@ -95,7 +100,10 @@ class HookStatusCommand(SimpleCommand):
 
     command = 'status hook'
 
-    @pattern('hook=(offhook|on-hook)')  # linphone version: 3.6.X = offhook, 3.12.X = on-hook
+    @pattern([
+        'hook=offhook',  # 3.6.X
+        'hook=on-hook',  # 3.12.X
+    ])
     def handle_offhook(self):
         return HookStatus.OFFHOOK
 
@@ -140,11 +148,17 @@ class RegisterCommand(BaseCommand):
             self._hostname == other._hostname
         )
 
-    @pattern('Registration on <?sip:.*>? successful.')
+    @pattern([
+        'Registration on <sip:.*> successful.',  # 3.6.X
+        'Registration on sip:.* successful.',  # 3.12.X
+    ])
     def handle_success(self):
         pass
 
-    @pattern('Registration on <?sip:.*>? failed:.*')
+    @pattern([
+        'Registration on <sip:.*> failed:.*',  # 3.6.X
+        'Registration on sip:.* failed:.*',  # 3.12.X
+    ])
     def handle_failure(self):
         raise LinphoneException('Registration failed')
 
