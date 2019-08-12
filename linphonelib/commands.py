@@ -111,7 +111,10 @@ class HookStatusCommand(SimpleCommand):
     def handle_ringback_tone(self):
         return HookStatus.RINGBACK_TONE
 
-    @pattern('Incoming call from ".*" <sip:.*>')
+    @pattern([
+        'Incoming call from ".*" <sip:.*>',
+        '".*" <sip:.*> is contacting you.',
+    ])
     def handle_ringing(self):
         return HookStatus.RINGING
 
