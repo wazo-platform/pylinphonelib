@@ -1,140 +1,111 @@
 # Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import pexpect
-
 from linphonelib.exceptions import (
     ExtensionNotFoundException,
-    CallAlreadyInProgressException,
-    CallDeclinedException,
     LinphoneException,
     NoActiveCallException,
 )
-from linphonelib.base_command import (
-    BaseCommand,
-    SimpleCommand,
-    pattern,
-)
+from linphonelib.base_command import BaseCommand
 
 
-class AnswerCommand(SimpleCommand):
+class AnswerCommand(BaseCommand):
 
     command = 'answer'
 
-    @pattern('Call \d+ with .* connected.')
-    def handle_connected(self):
+    def handle_status_ok(self, message):
         pass
 
-    @pattern('There are no calls to answer.')
-    def handle_no_call(self):
-        raise NoActiveCallException()
+    def handle_status_error(self, message):
+        if message['Reason'] == 'No call to accept.':
+            raise NoActiveCallException()
+        raise LinphoneException(message['Reason'])
 
 
 class CallCommand(BaseCommand):
 
-    def __init__(self, exten):
+    def __init__(self, exten, hostname):
         self._exten = exten
+        self._hostname = hostname
 
-    def __eq__(self, other):
-        return self._exten == other._exten
-
-    @pattern([
-        'Call answered by <sip:.*>.',  # 3.6.X
-        'Call answered by sip:.*.',  # 3.12.X
-        'Remote ringing.',
-        'Call \d+ to <sip:.*> ringing.'
-    ])
-    def handle_success(self):
+    def handle_status_ok(self, message):
         pass
 
-    @pattern('Not Found')
-    def handle_not_found(self):
-        raise ExtensionNotFoundException('Failed to call {}'.format(self._exten))
+    def handle_status_error(self, message):
+        if message['Reason'] == 'Call creation failed.':
+            raise ExtensionNotFoundException()
+        raise LinphoneException(message['Reason'])
 
-    @pattern('Call declined')
-    def handle_call_declined(self):
-        raise CallDeclinedException('Call to {} declined'.format(self._exten))
-
-    def _build_command_string(self):
-        return 'call {}'.format(self._exten)
+    @property
+    def command(self):
+        return 'call sip:{}@{}'.format(self._exten, self._hostname)
 
 
-class HangupCommand(SimpleCommand):
+class HangupCommand(BaseCommand):
 
     command = 'terminate'
 
-    @pattern('Call ended')
-    def handle_success(self):
+    def handle_status_ok(self, message):
         pass
 
-    @pattern('No active calls')
-    def handle_no_active_calls(self):
-        raise NoActiveCallException()
-
-    @pattern(['Could not stop the call with id \d+', 'Could not stop the active call.'])
-    def handle_count_not_stop_the_call(self):
-        raise LinphoneException('Hangup failed')
+    def handle_status_error(self, message):
+        if message['Reason'] == 'No active call.':
+            raise NoActiveCallException()
+        raise LinphoneException(message['Reason'])
 
 
-class HoldCommand(SimpleCommand):
+class HoldCommand(BaseCommand):
 
-    command = 'pause'
+    command = 'call-pause'
 
-    @pattern('Call .* is now paused.')
-    def handle_success(self):
+    def handle_status_ok(self, message):
         pass
 
-    @pattern('you can only pause when a call is in process')
-    def handle_no_call_in_progress(self):
-        raise NoActiveCallException()
+    def handle_status_error(self, message):
+        if message['Reason'] == 'No current call available.':
+            raise NoActiveCallException()
+        raise LinphoneException(message['Reason'])
 
 
-class HookStatus:
-    OFFHOOK = 0
+class CallStatus:
+    OFF = 0
     RINGING = 1
     ANSWERED = 2
-    RINGBACK_TONE = 3
 
 
-class HookStatusCommand(SimpleCommand):
+class CallStatusCommand(BaseCommand):
 
-    command = 'status hook'
+    command = 'call-status'
 
-    @pattern([
-        'hook=offhook',  # 3.6.X
-        'hook=on-hook',  # 3.12.X
-    ])
-    def handle_offhook(self):
-        return HookStatus.OFFHOOK
+    def handle_status_ok(self, message):
+        if message['State'] == 'LinphoneCallStreamsRunning':
+            return CallStatus.ANSWERED
+        if message['State'] == 'LinphoneCallIncomingReceived':
+            return CallStatus.RINGING
 
-    @pattern('hook=ringing sip:.*')
-    def handle_ringback_tone(self):
-        return HookStatus.RINGBACK_TONE
-
-    @pattern([
-        'Incoming call from ".*" <sip:.*>',
-        '".*" <sip:.*> is contacting you.',
-    ])
-    def handle_ringing(self):
-        return HookStatus.RINGING
-
-    @pattern(['hook=answered duration=\d+ ".*" <sip:.*>', 'Call out, hook=.* duration=.*'])
-    def handle_answered(self):
-        return HookStatus.ANSWERED
+    def handle_status_error(self, message):
+        if message['Reason'] == 'No current call available.':
+            return CallStatus.OFF
 
 
-def new_is_talking_to_command(caller_id):
-    to_match = 'hook=answered duration=\d+ "{}" <sip:.*>'.format(caller_id)
+class IsTalkingToCommand(BaseCommand):
 
-    class IsTalkingToCommand(SimpleCommand):
+    command = 'call-status'
 
-        command = 'status hook'
+    def __init__(self, caller_id):
+        self._caller_id = caller_id
 
-        @pattern(to_match)
-        def handle_answered(self):
-            return True
+    def handle_status_ok(self, message):
+        if message['State'] != 'LinphoneCallStreamsRunning':
+            raise LinphoneException('Not in conversation')
 
-    return IsTalkingToCommand
+        if self._caller_id not in message['From']:
+            raise LinphoneException('Do not talking to {}'.format(self._caller_id))
+
+        return True
+
+    def handle_status_error(self, message):
+        raise LinphoneException(message['Reason'])
 
 
 class RegisterCommand(BaseCommand):
@@ -144,28 +115,15 @@ class RegisterCommand(BaseCommand):
         self._passwd = passwd
         self._hostname = hostname
 
-    def __eq__(self, other):
-        return (
-            self._uname == other._uname and
-            self._passwd == other._passwd and
-            self._hostname == other._hostname
-        )
-
-    @pattern([
-        'Registration on <sip:.*> successful.',  # 3.6.X
-        'Registration on sip:.* successful.',  # 3.12.X
-    ])
-    def handle_success(self):
+    def handle_status_ok(self, message):
         pass
 
-    @pattern([
-        'Registration on <sip:.*> failed:.*',  # 3.6.X
-        'Registration on sip:.* failed:.*',  # 3.12.X
-    ])
-    def handle_failure(self):
-        raise LinphoneException('Registration failed')
+    def handle_status_error(self, message):
+        # register command never send Status: Error
+        pass
 
-    def _build_command_string(self):
+    @property
+    def command(self):
         return 'register sip:{name}@{host} {host} {passwd}'.format(
             name=self._uname,
             passwd=self._passwd,
@@ -173,21 +131,17 @@ class RegisterCommand(BaseCommand):
         )
 
 
-class ResumeCommand(SimpleCommand):
+class ResumeCommand(BaseCommand):
 
-    command = 'resume'
+    command = 'call-resume'
 
-    @pattern('Call resumed.')
-    def handle_success(self):
+    def handle_status_ok(self, message):
         pass
 
-    @pattern('There is already a call in process pause or stop it first')
-    def handle_already_on_a_call(self):
-        raise CallAlreadyInProgressException()
-
-    @pattern('There is no calls at this time.')
-    def handle_no_call_to_resume(self):
-        raise CallAlreadyInProgressException()
+    def handle_status_error(self, message):
+        if message['Reason'] == 'No current call available.':
+            raise NoActiveCallException()
+        raise LinphoneException(message['Reason'])
 
 
 class TransferCommand(BaseCommand):
@@ -195,38 +149,37 @@ class TransferCommand(BaseCommand):
     def __init__(self, exten):
         self._exten = exten
 
-    def __eq__(self, other):
-        return self._exten == other._exten
+    def handle_status_ok(self, message):
+        raise NotImplementedError()
 
-    @pattern('Call ended')
-    def handle_success(self):
-        pass
+    def handle_status_error(self, message):
+        raise NotImplementedError()
 
-    @pattern("No active call, please specify a call id among the ones listed by 'calls' command.")
-    def handle_no_active_call(self):
-        raise ExtensionNotFoundException('Failed to call {}'.format(self._exten))
-
-    def _build_command_string(self):
+    @property
+    def command(self):
         return 'transfer {}'.format(self._exten)
 
 
-class UnregisterCommand(SimpleCommand):
+class UnregisterCommand(BaseCommand):
 
-    command = 'unregister'
+    command = 'unregister ALL'
 
-    @pattern('Unregistration on sip:.* done.')
-    def handle_success(self):
+    def handle_status_ok(self, message):
         pass
 
-    @pattern('unregistered')
-    def handle_not_registered(self):
-        raise LinphoneException('Unregister failed')
+    def handle_status_error(self, message):
+        # unregister command never send Status: Error
+        pass
 
 
-class QuitCommand(SimpleCommand):
+class QuitCommand(BaseCommand):
+    pass
 
     command = 'quit'
 
-    @pattern(pexpect.EOF)
-    def handle_success(self):
+    def handle_status_ok(self, message):
+        pass
+
+    def handle_status_error(self, message):
+        # quit command never send Status: Error
         pass
