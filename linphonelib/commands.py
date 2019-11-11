@@ -173,7 +173,6 @@ class UnregisterCommand(BaseCommand):
 
 
 class QuitCommand(BaseCommand):
-    pass
 
     command = 'quit'
 
