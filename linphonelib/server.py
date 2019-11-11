@@ -38,7 +38,7 @@ class LinphoneServer:
         subprocess.run(cmd)
 
     def _is_ready(self):
-        return os.path.isfile(self._socket_file)
+        return os.path.exists(self._socket_file)
 
     def _wait_until_ready(self):
         tries = 10
