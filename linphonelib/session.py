@@ -109,9 +109,7 @@ audio_rtp_port={rtp_port}
     def __del__(self):
         if self._server.is_running():
             self.execute(QuitCommand())
-            time.sleep(1)
-            if self._server.is_running():
-                self._server.force_stop()
+            self._wait_until_server_stopped()
 
         if os.path.exists(self._mount_path):
             if os.path.exists(self._config_file):
@@ -147,6 +145,15 @@ audio_rtp_port={rtp_port}
             f.write(content)
 
         return config_file
+
+    def _wait_until_server_stopped(self):
+        tries = 10
+        interval = 0.5
+        for _ in range(tries):
+            if not self._server.is_running():
+                return
+            time.sleep(interval)
+        self._server.force_stop()
 
 
 @contextmanager
