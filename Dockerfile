@@ -23,7 +23,8 @@ RUN cmake --build . --parallel 4
 
 FROM debian:buster-slim
 RUN apt-get update -qq && \
-    apt-get install -yqq libasound2 libv4l-0 libx11-6
+    apt-get install -yqq libasound2 libv4l-0 libx11-6 && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create directory for linphone database
 RUN mkdir -p /root/.local/share/linphone
