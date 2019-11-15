@@ -14,7 +14,7 @@ RUN apt-get update -qq && \
     mkdir ./linphone-sdk/build
 
 WORKDIR /root/linphone-sdk/build
-RUN cmake ..
+RUN cmake -DENABLE_UNIT_TESTS=0 -DENABLE_TOOLS=0 -DENABLE_CXX_WRAPPER=0 ..
 
 # Patch mediastream to allow to create a socket that can be bound by anyone
 RUN sed -i 's/fchmod(sock,S_IRUSR|S_IWUSR)/fchmod(sock,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)/' ../ortp/src/port.c
@@ -23,7 +23,8 @@ RUN cmake --build . --parallel 4
 
 FROM debian:buster-slim
 RUN apt-get update -qq && \
-    apt-get install -yqq libasound2 libv4l-0 libx11-6
+    apt-get install -yqq libasound2 libv4l-0 libx11-6 && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create directory for linphone database
 RUN mkdir -p /root/.local/share/linphone
