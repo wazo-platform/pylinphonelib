@@ -31,14 +31,17 @@ def _parse_msg(data, status_callback):
 
     try:
         first_header, first_value = _parse_line(lines[0])
-
-        message = {}
-        message[first_header] = first_value
-        for line in lines[1:]:
-            header, value = _parse_line(line)
-            message[header] = value
     except LinphoneParsingError:
         raise LinphoneParsingError('unexpected data: %r' % data)
+
+    message = {}
+    message[first_header] = first_value
+    for line in lines[1:]:
+        try:
+            header, value = _parse_line(line)
+        except LinphoneParsingError:
+            continue  # ignore invalid line
+        message[header] = value
 
     if first_header == 'Status':
         status_callback(first_value, message)
