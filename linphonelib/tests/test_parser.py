@@ -69,3 +69,11 @@ class TestParser(unittest.TestCase):
 
         assert_that(unparsed_buffer, empty())
         self.status_callback.assert_not_called()
+
+    def test_given_unparseable_body_then_line_is_ignored(self):
+        raw_buffer = b'Status: Ok\nInvalid body\n'
+
+        unparsed_buffer = parse_buffer(raw_buffer, self.status_callback)
+
+        assert_that(unparsed_buffer, empty())
+        self.status_callback.assert_any_call('Ok', {'Status': 'Ok'})
