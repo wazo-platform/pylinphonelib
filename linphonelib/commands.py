@@ -131,6 +131,25 @@ class RegisterCommand(BaseCommand):
         )
 
 
+class RegisterStatus:
+    REGISTERED = 0
+    FAIL = 1
+
+
+class RegisterStatusCommand(BaseCommand):
+
+    command = 'register-status ALL'
+
+    def handle_status_ok(self, message):
+        if message['State'] == 'LinphoneRegistrationOk':
+            return RegisterStatus.REGISTERED
+        if message['State'] == 'LinphoneRegistrationFailed':
+            return RegisterStatus.FAIL
+
+    def handle_status_error(self, message):
+        raise NotImplementedError()
+
+
 class ResumeCommand(BaseCommand):
 
     command = 'call-resume'
