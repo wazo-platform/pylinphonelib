@@ -18,6 +18,7 @@ from linphonelib.commands import (
     IsTalkingToCommand,
     QuitCommand,
     RegisterCommand,
+    RegisterStatusCommand,
     ResumeCommand,
     TransferCommand,
     UnregisterCommand,
@@ -65,6 +66,10 @@ class Session:
     @_execute
     def register(self):
         return RegisterCommand(self._uname, self._secret, self._hostname)
+
+    @_execute
+    def register_status(self):
+        return RegisterStatusCommand()
 
     @_execute
     def resume(self):
