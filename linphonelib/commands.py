@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from linphonelib.exceptions import (
@@ -88,6 +88,17 @@ class CallStatusCommand(BaseCommand):
             return CallStatus.OFF
 
 
+class CallStatsCommand(BaseCommand):
+
+    command = 'call-stats'
+
+    def handle_status_ok(self, message):
+        return message
+
+    def handle_status_error(self, message):
+        raise LinphoneException(message['Reason'])
+
+
 class IsTalkingToCommand(BaseCommand):
 
     command = 'call-status'
@@ -152,7 +163,8 @@ class RegisterStatusCommand(BaseCommand):
 
 class ResumeCommand(BaseCommand):
 
-    command = 'call-resume'
+    def __init__(self, call_id):
+        self._call_id = call_id
 
     def handle_status_ok(self, message):
         pass
@@ -161,6 +173,12 @@ class ResumeCommand(BaseCommand):
         if message['Reason'] == 'No current call available.':
             raise NoActiveCallException()
         raise LinphoneException(message['Reason'])
+
+    @property
+    def command(self):
+        if self._call_id is None:
+            raise LinphoneException('Invalid call ID')
+        return 'call-resume {}'.format(self._call_id)
 
 
 class TransferCommand(BaseCommand):
