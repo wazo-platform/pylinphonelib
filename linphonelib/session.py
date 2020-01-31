@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -13,6 +13,7 @@ from linphonelib.commands import (
     AnswerCommand,
     CallCommand,
     CallStatusCommand,
+    CallStatsCommand,
     HangupCommand,
     HoldCommand,
     IsTalkingToCommand,
@@ -39,6 +40,7 @@ class Session:
         self._secret = secret
         self._hostname = hostname
         self._linphone_wrapper = _LinphoneWrapper(local_sip_port, local_rtp_port, logfile)
+        self._call_id = None
 
     def __str__(self):
         return 'Session %(_uname)s@%(_hostname)s' % self.__dict__
@@ -57,11 +59,16 @@ class Session:
 
     @_execute
     def hold(self):
+        self._call_id = self.call_stats()['Id']
         return HoldCommand()
 
     @_execute
     def call_status(self):
         return CallStatusCommand()
+
+    @_execute
+    def call_stats(self):
+        return CallStatsCommand()
 
     @_execute
     def register(self):
@@ -73,7 +80,9 @@ class Session:
 
     @_execute
     def resume(self):
-        return ResumeCommand()
+        id_to_resume = self._call_id
+        self._call_id = None
+        return ResumeCommand(id_to_resume)
 
     @_execute
     def is_talking_to(self, caller_id):
