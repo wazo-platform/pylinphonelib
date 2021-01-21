@@ -1,4 +1,4 @@
-# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from linphonelib.exceptions import (
@@ -112,6 +112,26 @@ class IsTalkingToCommand(BaseCommand):
 
         if self._caller_id not in message['From']:
             raise LinphoneException('Do not talking to {}'.format(self._caller_id))
+
+        return True
+
+    def handle_status_error(self, message):
+        raise LinphoneException(message['Reason'])
+
+
+class IsRingingShowingCommand(BaseCommand):
+
+    command = 'call-status'
+
+    def __init__(self, caller_id):
+        self._caller_id = caller_id
+
+    def handle_status_ok(self, message):
+        if message['State'] != 'LinphoneCallIncomingReceived':
+            raise LinphoneException('Not ringing')
+
+        if self._caller_id not in message['From']:
+            raise LinphoneException('Do not ringing showing {}'.format(self._caller_id))
 
         return True
 

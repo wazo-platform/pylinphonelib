@@ -1,4 +1,4 @@
-# Copyright 2013-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -17,6 +17,7 @@ from linphonelib.commands import (
     HangupCommand,
     HoldCommand,
     IsTalkingToCommand,
+    IsRingingShowingCommand,
     QuitCommand,
     RegisterCommand,
     RegisterStatusCommand,
@@ -87,6 +88,10 @@ class Session:
     @_execute
     def is_talking_to(self, caller_id):
         return IsTalkingToCommand(caller_id)
+
+    @_execute
+    def is_ringing_showing(self, caller_id):
+        return IsRingingShowingCommand(caller_id)
 
     @_execute
     def transfer(self, exten):
