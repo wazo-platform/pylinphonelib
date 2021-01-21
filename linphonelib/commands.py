@@ -41,6 +41,23 @@ class CallCommand(BaseCommand):
         return 'call sip:{}@{}'.format(self._exten, self._hostname)
 
 
+class DTMFCommand(BaseCommand):
+
+    def __init__(self, digit):
+        self._digit = digit
+
+    def handle_status_ok(self, message):
+        pass
+
+    def handle_status_error(self, message):
+        # DTMF command never send Status: Error
+        pass
+
+    @property
+    def command(self):
+        return 'dtmf {}'.format(self._digit)
+
+
 class HangupCommand(BaseCommand):
 
     command = 'terminate'

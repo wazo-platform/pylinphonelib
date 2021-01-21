@@ -14,6 +14,7 @@ from linphonelib.commands import (
     CallCommand,
     CallStatusCommand,
     CallStatsCommand,
+    DTMFCommand,
     HangupCommand,
     HoldCommand,
     IsTalkingToCommand,
@@ -53,6 +54,10 @@ class Session:
     @_execute
     def call(self, exten):
         return CallCommand(exten, self._hostname)
+
+    @_execute
+    def send_dtmf(self, digit):
+        return DTMFCommand(digit)
 
     @_execute
     def hangup(self):
