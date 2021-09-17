@@ -1,4 +1,4 @@
-# Copyright 2013-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import sys
@@ -8,10 +8,8 @@ from linphonelib import registering
 
 
 def usage():
-    print('''\
-Usage:
-    python register.py name secret hostname port
-''')
+    print('Usage:')
+    print('    python register.py name secret hostname port')
 
 
 def run(uname, secret, hostname, port):

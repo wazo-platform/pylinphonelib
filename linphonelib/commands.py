@@ -23,7 +23,6 @@ class AnswerCommand(BaseCommand):
 
 
 class CallCommand(BaseCommand):
-
     def __init__(self, exten, hostname):
         self._exten = exten
         self._hostname = hostname
@@ -42,7 +41,6 @@ class CallCommand(BaseCommand):
 
 
 class DTMFCommand(BaseCommand):
-
     def __init__(self, digit):
         self._digit = digit
 
@@ -157,7 +155,6 @@ class IsRingingShowingCommand(BaseCommand):
 
 
 class RegisterCommand(BaseCommand):
-
     def __init__(self, uname, passwd, hostname):
         self._uname = uname
         self._passwd = passwd
@@ -199,7 +196,6 @@ class RegisterStatusCommand(BaseCommand):
 
 
 class ResumeCommand(BaseCommand):
-
     def __init__(self, call_id):
         self._call_id = call_id
 
@@ -219,7 +215,6 @@ class ResumeCommand(BaseCommand):
 
 
 class TransferCommand(BaseCommand):
-
     def __init__(self, exten):
         self._exten = exten
 

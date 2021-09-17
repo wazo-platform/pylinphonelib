@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -25,10 +25,13 @@ class LinphoneServer:
         cmd = [
             'docker',
             'run',
-            '--rm', '-d',
-            '--name', self._docker_name,
-            '-v', '{}:/tmp/linphone'.format(self._mount_path),
-            self._DOCKER_IMG
+            '--rm',
+            '--detach',
+            '--name',
+            self._docker_name,
+            '--volume',
+            '{}:/tmp/linphone'.format(self._mount_path),
+            self._DOCKER_IMG,
         ]
         subprocess.run(cmd, stdout=subprocess.DEVNULL)
         self._wait_until_ready()

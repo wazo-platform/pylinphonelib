@@ -32,16 +32,20 @@ def _execute(f):
     @wraps(f)
     def func(self, *args):
         return self._linphone_wrapper.execute(f(self, *args))
+
     return func
 
 
 class Session:
-
-    def __init__(self, uname, secret, hostname, local_sip_port, local_rtp_port, logfile=None):
+    def __init__(
+        self, uname, secret, hostname, local_sip_port, local_rtp_port, logfile=None
+    ):
         self._uname = uname
         self._secret = secret
         self._hostname = hostname
-        self._linphone_wrapper = _LinphoneWrapper(local_sip_port, local_rtp_port, logfile)
+        self._linphone_wrapper = _LinphoneWrapper(
+            local_sip_port, local_rtp_port, logfile
+        )
         self._call_id = None
 
     def __str__(self):
@@ -163,7 +167,9 @@ audio_rtp_port={rtp_port}
             self._client.disconnect()
 
     def _create_config_file(self, path):
-        content = self._CONFIG_FILE_CONTENT.format(sip_port=self._sip_port, rtp_port=self._rtp_port)
+        content = self._CONFIG_FILE_CONTENT.format(
+            sip_port=self._sip_port, rtp_port=self._rtp_port
+        )
         config_file = os.path.join(path, 'linphonerc')
         with open(config_file, 'w+') as f:
             f.write(content)

@@ -1,4 +1,4 @@
-# Copyright 2014-2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2021 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import abc
@@ -10,7 +10,6 @@ from linphonelib.exceptions import (
 
 
 class BaseCommand(metaclass=abc.ABCMeta):
-
     def execute(self, linphone_client):
         cmd_string = self.command
         linphone_client.send_data(cmd_string)
