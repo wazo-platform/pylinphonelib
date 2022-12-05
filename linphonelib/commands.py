@@ -1,4 +1,4 @@
-# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from linphonelib.exceptions import (
@@ -37,7 +37,7 @@ class CallCommand(BaseCommand):
 
     @property
     def command(self):
-        return 'call sip:{}@{}'.format(self._exten, self._hostname)
+        return f'call sip:{self._exten}@{self._hostname}'
 
 
 class DTMFCommand(BaseCommand):
@@ -53,7 +53,7 @@ class DTMFCommand(BaseCommand):
 
     @property
     def command(self):
-        return 'dtmf {}'.format(self._digit)
+        return f'dtmf {self._digit}'
 
 
 class HangupCommand(BaseCommand):
@@ -126,7 +126,7 @@ class IsTalkingToCommand(BaseCommand):
             raise LinphoneException('Not in conversation')
 
         if self._caller_id not in message['From']:
-            raise LinphoneException('Do not talking to {}'.format(self._caller_id))
+            raise LinphoneException(f'Do not talking to {self._caller_id}')
 
         return True
 
@@ -146,7 +146,7 @@ class IsRingingShowingCommand(BaseCommand):
             raise LinphoneException('Not ringing')
 
         if self._caller_id not in message['From']:
-            raise LinphoneException('Do not ringing showing {}'.format(self._caller_id))
+            raise LinphoneException(f'Do not ringing showing {self._caller_id}')
 
         return True
 
@@ -169,11 +169,7 @@ class RegisterCommand(BaseCommand):
 
     @property
     def command(self):
-        return 'register sip:{name}@{host} {host} {passwd}'.format(
-            name=self._uname,
-            passwd=self._passwd,
-            host=self._hostname,
-        )
+        return f'register sip:{self._uname}@{self._hostname} {self._hostname} {self._passwd}'
 
 
 class RegisterStatus:
@@ -211,7 +207,7 @@ class ResumeCommand(BaseCommand):
     def command(self):
         if self._call_id is None:
             raise LinphoneException('Invalid call ID')
-        return 'call-resume {}'.format(self._call_id)
+        return f'call-resume {self._call_id}'
 
 
 class TransferCommand(BaseCommand):
@@ -226,7 +222,7 @@ class TransferCommand(BaseCommand):
 
     @property
     def command(self):
-        return 'transfer {}'.format(self._exten)
+        return f'transfer {self._exten}'
 
 
 class UnregisterCommand(BaseCommand):

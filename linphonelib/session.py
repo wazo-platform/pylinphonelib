@@ -1,4 +1,4 @@
-# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -50,6 +50,9 @@ class Session:
 
     def __str__(self):
         return 'Session %(_uname)s@%(_hostname)s' % self.__dict__
+
+    def close(self):
+        self._linphone_wrapper.stop_and_clean()
 
     @_execute
     def answer(self):
@@ -134,9 +137,14 @@ audio_rtp_port={rtp_port}
         self._server = None
         self._configured = False
 
-    def __del__(self):
+    def _log_write(self, message):
+        if self._logfile:
+            self._logfile.write(message)
+
+    def stop_and_clean(self):
         if self._server.is_running():
             self.execute(QuitCommand())
+            self._log_write('Stopping Linphone container...')
             self._wait_until_server_stopped()
 
         if os.path.exists(self._mount_path):
