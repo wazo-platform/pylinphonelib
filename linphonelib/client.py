@@ -1,4 +1,4 @@
-# Copyright 2019 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
@@ -28,7 +28,7 @@ class LinphoneClient:
 
     def connect(self):
         if self._sock is None:
-            self._log_write('Connecting Linphone client to {}'.format(self._filename))
+            self._log_write(f'Connecting Linphone client to {self._filename}')
             self._connect_socket()
 
     def disconnect(self):
@@ -72,7 +72,7 @@ class LinphoneClient:
         return message
 
     def send_data(self, data):
-        self._log_write('Send data: {}'.format(data))
+        self._log_write(f'Send data: {data}')
         if isinstance(data, str):
             data = data.encode('utf-8')
         self._send_data_to_socket(data)
@@ -86,7 +86,7 @@ class LinphoneClient:
     def _recv_data_from_socket(self):
         try:
             data = self._sock.recv(self._BUFSIZE)
-            self._log_write('Received data: {}'.format(data))
+            self._log_write(f'Received data: {data}')
         except socket.error as e:
             raise LinphoneConnectionError(e)
         if not data:

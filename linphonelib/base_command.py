@@ -1,4 +1,4 @@
-# Copyright 2014-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2014-2022 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import abc
@@ -22,7 +22,7 @@ class BaseCommand(metaclass=abc.ABCMeta):
         elif message.status == 'Error':
             return self.handle_status_error(message.body)
 
-        raise NotImplementedError('Status: {}'.format(message.status))
+        raise NotImplementedError(f'Status: {message.status}')
 
     @abc.abstractmethod
     def handle_status_ok(self, message):
