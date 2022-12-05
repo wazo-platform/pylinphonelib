@@ -30,7 +30,7 @@ class LinphoneServer:
             '--name',
             self._docker_name,
             '--volume',
-            '{self._mount_path}:/tmp/linphone',
+            f'{self._mount_path}:/tmp/linphone',
             self._DOCKER_IMG,
         ]
         subprocess.run(cmd, stdout=subprocess.DEVNULL)
