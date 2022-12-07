@@ -15,8 +15,8 @@ class BaseCommand(metaclass=abc.ABCMeta):
         linphone_client.send_data(cmd_string)
         try:
             message = linphone_client.parse_next_status_message()
-        except LinphoneConnectionError:
-            raise CommandTimeoutException(self.__class__.__name__)
+        except LinphoneConnectionError as e:
+            raise CommandTimeoutException(f'{self.__class__.__name__}: {e}')
         if message.status == 'Ok':
             return self.handle_status_ok(message.body)
         elif message.status == 'Error':
