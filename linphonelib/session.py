@@ -8,6 +8,7 @@ import tempfile
 from contextlib import contextmanager
 from functools import wraps
 from linphonelib.client import LinphoneClient
+from linphonelib.exceptions import LinphoneException
 from linphonelib.server import LinphoneServer
 from linphonelib.commands import (
     AnswerCommand,
@@ -143,7 +144,11 @@ audio_rtp_port={rtp_port}
 
     def stop_and_clean(self):
         if self._server.is_running():
-            self.execute(QuitCommand())
+            try:
+                self.execute(QuitCommand())
+            except LinphoneException as e:
+                self._log_write(str(e))
+
             self._log_write('Stopping Linphone container...')
             self._wait_until_server_stopped()
 
