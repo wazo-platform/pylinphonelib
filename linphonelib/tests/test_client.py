@@ -1,4 +1,4 @@
-# Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import socket
@@ -49,14 +49,14 @@ class TestLinphoneClient(unittest.TestCase):
 
         self.client.send_data(raw_data)
 
-        self.socket.sendall.assert_called_once_with(raw_data)
+        self.socket.sendall.assert_called_once_with(raw_data + b'\n')
 
     def test_when_send_decoded_data_then_data_sent_to_socket(self):
         data = 'register xyz'
 
         self.client.send_data(data)
 
-        expected_data = data.encode('utf-8')
+        expected_data = data.encode('utf-8') + b'\n'
         self.socket.sendall.assert_called_once_with(expected_data)
 
     def test_given_not_connected_when_disconnect_then_no_error(self):

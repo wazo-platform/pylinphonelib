@@ -1,4 +1,4 @@
-# Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
@@ -74,6 +74,11 @@ class LinphoneClient:
         self._log_write(f'Send data: {data}')
         if isinstance(data, str):
             data = data.encode('utf-8')
+        # using --pipe option will trigger `setlinebuf(stdout)` in linphone
+        # According setlinebuf documentation, it's like using setvbuf with _IOLBF param
+        # According the setvbuf documentation: The buffer is deleted when a new-line character is
+        # written, when the buffer is full, or when input is requested
+        data += b'\n'
         self._send_data_to_socket(data)
 
     def _send_data_to_socket(self, data):
