@@ -1,4 +1,4 @@
-# Copyright 2013-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from linphonelib.exceptions import (
@@ -10,7 +10,6 @@ from linphonelib.base_command import BaseCommand
 
 
 class AnswerCommand(BaseCommand):
-
     command = 'answer'
 
     def handle_status_ok(self, message):
@@ -57,7 +56,6 @@ class DTMFCommand(BaseCommand):
 
 
 class HangupCommand(BaseCommand):
-
     command = 'terminate'
 
     def handle_status_ok(self, message):
@@ -70,7 +68,6 @@ class HangupCommand(BaseCommand):
 
 
 class HoldCommand(BaseCommand):
-
     command = 'call-pause'
 
     def handle_status_ok(self, message):
@@ -89,7 +86,6 @@ class CallStatus:
 
 
 class CallStatusCommand(BaseCommand):
-
     command = 'call-status'
 
     def handle_status_ok(self, message):
@@ -104,7 +100,6 @@ class CallStatusCommand(BaseCommand):
 
 
 class CallStatsCommand(BaseCommand):
-
     command = 'call-stats'
 
     def handle_status_ok(self, message):
@@ -115,7 +110,6 @@ class CallStatsCommand(BaseCommand):
 
 
 class IsTalkingToCommand(BaseCommand):
-
     command = 'call-status'
 
     def __init__(self, caller_id):
@@ -135,7 +129,6 @@ class IsTalkingToCommand(BaseCommand):
 
 
 class IsRingingShowingCommand(BaseCommand):
-
     command = 'call-status'
 
     def __init__(self, caller_id):
@@ -178,7 +171,6 @@ class RegisterStatus:
 
 
 class RegisterStatusCommand(BaseCommand):
-
     command = 'register-status ALL'
 
     def handle_status_ok(self, message):
@@ -226,7 +218,6 @@ class TransferCommand(BaseCommand):
 
 
 class UnregisterCommand(BaseCommand):
-
     command = 'unregister ALL'
 
     def handle_status_ok(self, message):
@@ -238,7 +229,6 @@ class UnregisterCommand(BaseCommand):
 
 
 class QuitCommand(BaseCommand):
-
     command = 'quit'
 
     def handle_status_ok(self, message):

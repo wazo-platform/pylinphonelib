@@ -1,4 +1,4 @@
-# Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -8,7 +8,6 @@ import time
 
 # NOTE: Improve using docker python library
 class LinphoneServer:
-
     _DOCKER_IMG = "wazoplatform/wazo-linphone"
 
     def __init__(self, socket_file, mount_path):

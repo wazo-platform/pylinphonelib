@@ -12,7 +12,6 @@ StatusMessage = collections.namedtuple('Message', ['status', 'body'])
 
 
 class LinphoneClient:
-
     _BUFSIZE = 4096
 
     def __init__(self, filename, logfile=None):
