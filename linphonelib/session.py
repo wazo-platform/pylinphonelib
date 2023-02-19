@@ -149,7 +149,6 @@ audio_rtp_port={rtp_port}
             except LinphoneException as e:
                 self._log_write(str(e))
 
-            self._log_write('Stopping Linphone container...')
             self._wait_until_server_stopped()
 
         if os.path.exists(self._mount_path):
@@ -190,12 +189,16 @@ audio_rtp_port={rtp_port}
         return config_file
 
     def _wait_until_server_stopped(self):
-        tries = 10
-        interval = 0.5
+        self._log_write('_wait_until_server_stopped...')
+        tries = 120
+        interval = 1
         for _ in range(tries):
             if not self._server.is_running():
+                self._log_write('Server stopped correctly')
                 return
+            self._log_write('waiting closing server (sleep 1s)')
             time.sleep(interval)
+        self._log_write('forcing stop (kill container)')
         self._server.force_stop()
 
 
