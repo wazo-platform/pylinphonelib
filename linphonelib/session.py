@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
+import shutil
 import time
 import tempfile
 
@@ -154,7 +155,7 @@ audio_rtp_port={rtp_port}
         if os.path.exists(self._mount_path):
             if os.path.exists(self._config_file):
                 os.unlink(self._config_file)
-            os.rmdir(self._mount_path)
+            shutil.rmtree(self._mount_path)
 
     def _configure(self):
         self._mount_path = tempfile.mkdtemp()
