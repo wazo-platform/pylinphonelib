@@ -10,10 +10,15 @@ import time
 class LinphoneServer:
     _DOCKER_IMG = "wazoplatform/wazo-linphone"
 
-    def __init__(self, socket_file, mount_path):
+    def __init__(self, socket_file, mount_path, logfile):
         self._mount_path = mount_path
         self._socket_file = socket_file
+        self._logfile = logfile
         self._docker_name = os.path.basename(self._mount_path)
+
+    def _log_write(self, message):
+        if self._logfile:
+            self._logfile.write(message)
 
     def is_running(self):
         cmd = ['docker', 'container', 'ls', '-qf', f'name={self._docker_name}']
@@ -32,8 +37,11 @@ class LinphoneServer:
             f'{self._mount_path}:/tmp/linphone',
             self._DOCKER_IMG,
         ]
+        self._log_write('Starting linphone container...')
         subprocess.run(cmd, stdout=subprocess.DEVNULL)
+        self._log_write('Waiting linphone container is ready...')
         self._wait_until_ready()
+        self._log_write('Linphone container ready!')
 
     def force_stop(self):
         cmd = ['docker', 'kill', self._docker_name]
