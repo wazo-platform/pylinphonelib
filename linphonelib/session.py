@@ -162,7 +162,9 @@ audio_rtp_port={rtp_port}
         self._config_file = self._create_config_file(self._mount_path)
         self._socket_file = os.path.join(self._mount_path, 'socket')
 
-        self._server = LinphoneServer(self._socket_file, self._mount_path, self._logfile)
+        self._server = LinphoneServer(
+            self._socket_file, self._mount_path, self._logfile
+        )
         self._client = LinphoneClient(self._socket_file, self._logfile)
 
         self._configured = True
