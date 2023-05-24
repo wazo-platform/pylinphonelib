@@ -1,4 +1,4 @@
-# Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
@@ -50,7 +50,7 @@ class LinphoneClient:
             self._sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             self._sock.settimeout(DEFAULT_TIMEOUT)
             self._sock.connect(self._filename)
-        except socket.error as e:
+        except OSError as e:
             raise LinphoneConnectionError(e)
 
     def _disconnect_socket(self):
@@ -79,14 +79,14 @@ class LinphoneClient:
     def _send_data_to_socket(self, data):
         try:
             self._sock.sendall(data)
-        except socket.error as e:
+        except OSError as e:
             raise LinphoneConnectionError(e)
 
     def _recv_data_from_socket(self):
         try:
             data = self._sock.recv(self._BUFSIZE)
             self._log_write(f'Received data: {data}')
-        except socket.error as e:
+        except OSError as e:
             raise LinphoneConnectionError(e)
         if not data:
             raise LinphoneConnectionError('Connection closed from remote')
