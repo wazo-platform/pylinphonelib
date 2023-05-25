@@ -1,4 +1,4 @@
-# Copyright 2019-2022 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import socket
@@ -45,7 +45,7 @@ class TestLinphoneClient(unittest.TestCase):
         )
 
     def test_when_send_encoded_data_then_data_sent_to_socket(self):
-        raw_data = 'register xyz'.encode('utf-8')
+        raw_data = b'register xyz'
 
         self.client.send_data(raw_data)
 
