@@ -19,6 +19,10 @@ RUN cmake -DENABLE_UNIT_TESTS=0 -DENABLE_TOOLS=0 -DENABLE_CXX_WRAPPER=0 ..
 # Patch mediastream to allow to create a socket that can be bound by anyone
 RUN sed -i 's/fchmod(sock,S_IRUSR|S_IWUSR)/fchmod(sock,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)/' ../ortp/src/port.c
 
+# Patch call-stats command to remove video infos to avoid crash
+# It should have a better way to fix it, but for tests it's good enough
+RUN sed -i '/ostr <<.*video/d' ../liblinphone/daemon/commands/call-stats.cc
+
 RUN cmake --build . --parallel 4
 
 FROM debian:bullseye-slim
