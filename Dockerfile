@@ -1,6 +1,6 @@
 FROM debian:bullseye-slim as builder
 
-ARG LINPHONE_VERSION=5.1
+ARG LINPHONE_VERSION=5.2
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -17,7 +17,7 @@ WORKDIR /root/linphone-sdk/build
 RUN cmake -DENABLE_UNIT_TESTS=0 -DENABLE_TOOLS=0 -DENABLE_CXX_WRAPPER=0 ..
 
 # Patch mediastream to allow to create a socket that can be bound by anyone
-RUN sed -i 's/fchmod(sock,S_IRUSR|S_IWUSR)/fchmod(sock,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)/' ../ortp/src/port.c
+RUN sed -i 's/fchmod(sock,S_IRUSR|S_IWUSR)/fchmod(sock,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)/' ../bctoolbox/src/utils/port.c
 
 # Patch call-stats command to remove video infos to avoid crash
 # It should have a better way to fix it, but for tests it's good enough
