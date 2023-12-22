@@ -3,14 +3,9 @@
 
 import socket
 import unittest
-
 from unittest.mock import Mock, patch
 
-from hamcrest import (
-    assert_that,
-    instance_of,
-    has_properties,
-)
+from hamcrest import assert_that, has_properties, instance_of
 
 from ..client import LinphoneClient
 from ..exceptions import LinphoneConnectionError

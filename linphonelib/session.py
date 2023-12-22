@@ -3,24 +3,22 @@
 
 import os
 import shutil
-import time
 import tempfile
-
+import time
 from contextlib import contextmanager
 from functools import wraps
+
 from linphonelib.client import LinphoneClient
-from linphonelib.exceptions import LinphoneException
-from linphonelib.server import LinphoneServer
 from linphonelib.commands import (
     AnswerCommand,
     CallCommand,
-    CallStatusCommand,
     CallStatsCommand,
+    CallStatusCommand,
     DTMFCommand,
     HangupCommand,
     HoldCommand,
-    IsTalkingToCommand,
     IsRingingShowingCommand,
+    IsTalkingToCommand,
     QuitCommand,
     RegisterCommand,
     RegisterStatusCommand,
@@ -28,6 +26,8 @@ from linphonelib.commands import (
     TransferCommand,
     UnregisterCommand,
 )
+from linphonelib.exceptions import LinphoneException
+from linphonelib.server import LinphoneServer
 
 
 def _execute(f):

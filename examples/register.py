@@ -1,10 +1,9 @@
-# Copyright 2013-2021 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import sys
 
-from linphonelib import Session
-from linphonelib import registering
+from linphonelib import Session, registering
 
 
 def usage():
