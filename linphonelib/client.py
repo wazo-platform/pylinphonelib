@@ -1,4 +1,4 @@
-# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
@@ -33,6 +33,19 @@ class LinphoneClient:
     def disconnect(self):
         if self._sock is not None:
             self._log_write('Disconnecting Linphone client')
+            self._disconnect_socket()
+
+    def is_server_up(self):
+        if self._sock is not None:
+            return True
+
+        try:
+            self._log_write('Probing Linphone server')
+            self._connect_socket()
+            return True
+        except LinphoneConnectionError:
+            return False
+        finally:
             self._disconnect_socket()
 
     def parse_next_status_message(self):

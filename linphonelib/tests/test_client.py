@@ -1,4 +1,4 @@
-# Copyright 2019-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2024 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import socket
@@ -121,3 +121,31 @@ class TestLinphoneClient(unittest.TestCase):
         self.assertRaises(
             LinphoneConnectionError, self.client.parse_next_status_message
         )
+
+    @patch('socket.socket')
+    def test_is_server_up_true(self, mock_socket_constructor):
+        self.client._sock = None
+
+        result = self.client.is_server_up()
+
+        assert result is True
+        mock_socket_constructor.assert_called_once_with(
+            socket.AF_UNIX, socket.SOCK_STREAM
+        )
+
+    @patch('socket.socket')
+    def test_is_server_up_true_already_connected(self, mock_socket_constructor):
+        result = self.client.is_server_up()
+
+        assert result is True
+        mock_socket_constructor.assert_not_called()
+
+    @patch('socket.socket')
+    def test_is_server_up_false_already_connected(self, mock_socket_constructor):
+        self.client._sock = None
+        mock_socket_constructor.return_value = socket = Mock()
+        socket.connect.side_effect = OSError('connection refused')
+
+        result = self.client.is_server_up()
+
+        assert result is False
