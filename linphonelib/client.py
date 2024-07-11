@@ -69,6 +69,7 @@ class LinphoneClient:
             raise LinphoneConnectionError(e)
 
     def _disconnect_socket(self):
+        self._sock.shutdown(socket.SHUT_RDWR)
         self._sock.close()
         self._sock = None
         self._buffer = b''
