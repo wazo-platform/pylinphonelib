@@ -35,19 +35,6 @@ class LinphoneClient:
             self._log_write('Disconnecting Linphone client')
             self._disconnect_socket()
 
-    def is_server_up(self):
-        if self._sock is not None:
-            return True
-
-        try:
-            self._log_write('Probing Linphone server')
-            self._connect_socket()
-            return True
-        except LinphoneConnectionError:
-            return False
-        finally:
-            self._disconnect_socket()
-
     def parse_next_status_message(self):
         while not self._status_queue:
             self._add_data_to_buffer()
@@ -67,7 +54,6 @@ class LinphoneClient:
             raise LinphoneConnectionError(e)
 
     def _disconnect_socket(self):
-        self._sock.shutdown(socket.SHUT_RDWR)
         self._sock.close()
         self._sock = None
         self._buffer = b''
