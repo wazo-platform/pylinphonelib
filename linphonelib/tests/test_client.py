@@ -125,8 +125,7 @@ class TestLinphoneClient(unittest.TestCase):
     @patch('socket.socket')
     def test_is_server_up_true(self, mock_socket_constructor):
         self.client._sock = None
-        mock_socket_constructor.return_value = probing_socket = Mock()
-        probing_socket.recv.return_value = b'\nStatus: Ok'
+        mock_socket_constructor.return_value = Mock()
 
         result = self.client.is_server_up()
 
@@ -147,16 +146,6 @@ class TestLinphoneClient(unittest.TestCase):
         self.client._sock = None
         mock_socket_constructor.return_value = socket = Mock()
         socket.connect.side_effect = OSError('connection refused')
-
-        result = self.client.is_server_up()
-
-        assert result is False
-
-    @patch('socket.socket')
-    def test_is_server_up_false_connection_reset(self, mock_socket_constructor):
-        self.client._sock = None
-        mock_socket_constructor.return_value = socket = Mock()
-        socket.recv.side_effect = OSError('connection reset')
 
         result = self.client.is_server_up()
 

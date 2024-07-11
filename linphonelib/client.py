@@ -42,8 +42,6 @@ class LinphoneClient:
         try:
             self._log_write('Probing Linphone server')
             self._connect_socket()
-            self.send_data('call-status\n')
-            self.parse_next_status_message()
             return True
         except LinphoneConnectionError:
             return False
@@ -69,6 +67,7 @@ class LinphoneClient:
             raise LinphoneConnectionError(e)
 
     def _disconnect_socket(self):
+        self._sock.shutdown(socket.SHUT_RDWR)
         self._sock.close()
         self._sock = None
         self._buffer = b''
