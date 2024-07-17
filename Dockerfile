@@ -2,7 +2,7 @@ FROM debian:bullseye-slim as builder
 
 ARG LINPHONE_VERSION=5.2
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /root
 
