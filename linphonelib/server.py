@@ -5,6 +5,8 @@ import os
 import subprocess
 import time
 
+from linphonelib.client import LinphoneClient
+
 
 # NOTE: Improve using docker python library
 class LinphoneServer:
@@ -39,7 +41,7 @@ class LinphoneServer:
         ]
         self._log_write('Starting linphone container...')
         subprocess.run(cmd, stdout=subprocess.DEVNULL)
-        self._log_write('Waiting linphone container is ready...')
+        self._log_write('Waiting for linphone container to be ready...')
         self._wait_until_ready()
         self._log_write('Linphone container ready!')
 
@@ -47,14 +49,12 @@ class LinphoneServer:
         cmd = ['docker', 'kill', self._docker_name]
         subprocess.run(cmd)
 
-    def _is_ready(self):
-        return os.path.exists(self._socket_file)
-
     def _wait_until_ready(self):
+        client = LinphoneClient(self._socket_file, self._logfile)
         tries = 10
         interval = 0.5
         for _ in range(tries):
-            if self._is_ready():
+            if client.is_server_up():
                 return
             time.sleep(interval)
 

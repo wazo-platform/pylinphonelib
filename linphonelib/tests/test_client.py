@@ -121,3 +121,33 @@ class TestLinphoneClient(unittest.TestCase):
         self.assertRaises(
             LinphoneConnectionError, self.client.parse_next_status_message
         )
+
+    @patch('socket.socket')
+    def test_is_server_up_true(self, mock_socket_constructor):
+        self.client._sock = None
+        socket_instance = mock_socket_constructor.return_value = Mock()
+        socket_instance.recv.return_value = b'Status: OK\n'
+
+        result = self.client.is_server_up()
+
+        assert result is True
+        mock_socket_constructor.assert_called_once_with(
+            socket.AF_UNIX, socket.SOCK_STREAM
+        )
+
+    @patch('socket.socket')
+    def test_is_server_up_true_already_connected(self, mock_socket_constructor):
+        result = self.client.is_server_up()
+
+        assert result is True
+        mock_socket_constructor.assert_not_called()
+
+    @patch('socket.socket')
+    def test_is_server_up_false_connection_refused(self, mock_socket_constructor):
+        self.client._sock = None
+        mock_socket_constructor.return_value = socket = Mock()
+        socket.connect.side_effect = OSError('connection refused')
+
+        result = self.client.is_server_up()
+
+        assert result is False
