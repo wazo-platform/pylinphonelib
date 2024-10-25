@@ -1,4 +1,4 @@
-# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -151,6 +151,9 @@ audio_rtp_port={rtp_port}
 
             self._log_write('Stopping Linphone container...')
             self._wait_until_server_stopped()
+            if self._logfile:
+                self._server.dump_container_output(self._logfile)
+            self._server.cleanup()
 
         if os.path.exists(self._mount_path):
             if os.path.exists(self._config_file):
