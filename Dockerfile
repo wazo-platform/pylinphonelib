@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim as builder
+FROM debian:bookworm-slim AS builder
 
 ARG LINPHONE_VERSION=5.2
 
@@ -7,8 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 WORKDIR /root
 
 RUN apt-get update -qq && \
-    apt-get install -yqq git cmake doxygen yasm nasm pkg-config libx11-dev python3 python3-pip libasound2-dev libv4l-dev && \
-    pip3 install six pystache && \
+    apt-get install -yqq git cmake doxygen yasm nasm pkg-config libx11-dev python3 python3-six python3-pystache libasound2-dev libv4l-dev g++ && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     git clone --single-branch --recurse-submodules --shallow-submodules --branch release/$LINPHONE_VERSION https://gitlab.linphone.org/BC/public/linphone-sdk.git linphone-sdk && \
     mkdir ./linphone-sdk/build
@@ -25,7 +24,7 @@ RUN sed -i '/ostr <<.*video/d' ../liblinphone/daemon/commands/call-stats.cc
 
 RUN cmake --build . --parallel 4
 
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 RUN apt-get update -qq && \
     apt-get install -yqq libasound2 libv4l-0 libx11-6 && \
     rm -rf /var/lib/apt/lists/*
