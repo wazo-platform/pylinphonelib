@@ -26,7 +26,7 @@ RUN cmake --build . --parallel 4
 
 FROM debian:bookworm-slim
 RUN apt-get update -qq && \
-    apt-get install -yqq libasound2 libv4l-0 libx11-6 && \
+    apt-get install -yqq libasound2 libv4l-0 libx11-6 libxext6 && \
     rm -rf /var/lib/apt/lists/*
 
 # Create directory for linphone database
