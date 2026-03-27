@@ -1,7 +1,8 @@
-# Copyright 2019-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
+import socket
 import subprocess
 import time
 
@@ -48,7 +49,14 @@ class LinphoneServer:
         subprocess.run(cmd)
 
     def _is_ready(self):
-        return os.path.exists(self._socket_file)
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        try:
+            sock.connect(self._socket_file)
+            return True
+        except OSError:
+            return False
+        finally:
+            sock.close()
 
     def _wait_until_ready(self):
         tries = 10
