@@ -1,4 +1,4 @@
-# Copyright 2019-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
@@ -69,7 +69,10 @@ class LinphoneClient:
             raise LinphoneConnectionError(e)
 
     def _disconnect_socket(self):
-        self._sock.shutdown(socket.SHUT_RDWR)
+        try:
+            self._sock.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
         self._sock.close()
         self._sock = None
         self._buffer = b''
