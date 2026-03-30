@@ -1,4 +1,4 @@
-# Copyright 2019-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import os
@@ -39,7 +39,7 @@ class LinphoneServer:
         ]
         self._log_write('Starting linphone container...')
         subprocess.run(cmd, stdout=subprocess.DEVNULL)
-        self._log_write('Waiting linphone container is ready...')
+        self._log_write('Waiting for linphone container to be ready...')
         self._wait_until_ready()
         self._log_write('Linphone container ready!')
 
