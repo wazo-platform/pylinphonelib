@@ -15,6 +15,7 @@ class LinphoneServer:
         self._socket_file = socket_file
         self._logfile = logfile
         self._docker_name = os.path.basename(self._mount_path)
+        self._container_id = None
 
     def _log_write(self, message):
         if self._logfile:
@@ -44,6 +45,8 @@ class LinphoneServer:
         self._log_write('Linphone container ready!')
 
     def dump_container_output(self, log_file):
+        if not self._container_id:
+            return
         self._log_write('Linphone server logs:')
         completed_process = subprocess.run(
             ['docker', 'logs', '--timestamps', self._container_id],
@@ -61,10 +64,13 @@ class LinphoneServer:
         return os.path.exists(self._socket_file)
 
     def cleanup(self):
+        if not self._container_id:
+            return
         subprocess.run(
             ['docker', 'rm', self._container_id],
             stdout=subprocess.DEVNULL,
         )
+        self._container_id = None
 
     def _wait_until_ready(self):
         tries = 10
