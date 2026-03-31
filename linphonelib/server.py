@@ -1,15 +1,9 @@
 # Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from __future__ import annotations
-
 import os
 import subprocess
 import time
-from typing import TYPE_CHECKING, TextIO
-
-if TYPE_CHECKING:
-    from tempfile import _TemporaryFileWrapper
 
 
 # NOTE: Improve using docker python library
@@ -43,13 +37,13 @@ class LinphoneServer:
             self._DOCKER_IMG,
         ]
         self._log_write('Starting linphone container...')
-        completed_process = subprocess.run(cmd, stdout=subprocess.PIPE)
+        completed_process = subprocess.run(cmd, stdout=subprocess.PIPE, check=True)
         self._container_id = completed_process.stdout.decode('utf-8').strip()
         self._log_write('Waiting for linphone container to be ready...')
         self._wait_until_ready()
         self._log_write('Linphone container ready!')
 
-    def dump_container_output(self, log_file: TextIO | _TemporaryFileWrapper):
+    def dump_container_output(self, log_file):
         self._log_write('Linphone server logs:')
         completed_process = subprocess.run(
             ['docker', 'logs', '--timestamps', self._container_id],

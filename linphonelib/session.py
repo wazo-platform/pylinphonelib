@@ -151,8 +151,11 @@ audio_rtp_port={rtp_port}
 
             self._log_write('Stopping Linphone container...')
             self._wait_until_server_stopped()
+
+        try:
             if self._logfile:
                 self._server.dump_container_output(self._logfile)
+        finally:
             self._server.cleanup()
 
         if os.path.exists(self._mount_path):
