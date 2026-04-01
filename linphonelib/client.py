@@ -58,8 +58,9 @@ class LinphoneClient:
                 return
             except OSError as e:
                 last_error = e
-                self._sock.close()
-                self._sock = None
+                if self._sock is not None:
+                    self._sock.close()
+                    self._sock = None
                 if attempt < tries - 1:
                     time.sleep(interval)
         raise LinphoneConnectionError(last_error)
