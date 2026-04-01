@@ -27,6 +27,7 @@ class LinphoneServer:
         return len(result.stdout)
 
     def start(self):
+        self.cleanup()
         cmd = [
             'docker',
             'run',
