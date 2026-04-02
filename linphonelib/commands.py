@@ -1,4 +1,4 @@
-# Copyright 2013-2023 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2013-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from linphonelib.base_command import BaseCommand
@@ -168,15 +168,19 @@ class RegisterCommand(BaseCommand):
 class RegisterStatus:
     REGISTERED = 0
     FAIL = 1
+    NOT_REGISTERED = 2
 
 
 class RegisterStatusCommand(BaseCommand):
     command = 'register-status ALL'
 
     def handle_status_ok(self, message):
-        if message['State'] == 'LinphoneRegistrationOk':
+        state = message.get('State')
+        if state is None:
+            return RegisterStatus.NOT_REGISTERED
+        if state == 'LinphoneRegistrationOk':
             return RegisterStatus.REGISTERED
-        if message['State'] == 'LinphoneRegistrationFailed':
+        if state == 'LinphoneRegistrationFailed':
             return RegisterStatus.FAIL
 
     def handle_status_error(self, message):
