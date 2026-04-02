@@ -1,8 +1,9 @@
-# Copyright 2019-2024 The Wazo Authors  (see the AUTHORS file)
+# Copyright 2019-2026 The Wazo Authors  (see the AUTHORS file)
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 import collections
 import socket
+import time
 
 from . import parser
 from .exceptions import LinphoneConnectionError
@@ -46,12 +47,23 @@ class LinphoneClient:
         self._status_queue.append(message)
 
     def _connect_socket(self):
-        try:
-            self._sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            self._sock.settimeout(DEFAULT_TIMEOUT)
-            self._sock.connect(self._filename)
-        except OSError as e:
-            raise LinphoneConnectionError(e)
+        tries = 10
+        interval = 0.5
+        last_error = None
+        for attempt in range(tries):
+            try:
+                self._sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                self._sock.settimeout(DEFAULT_TIMEOUT)
+                self._sock.connect(self._filename)
+                return
+            except OSError as e:
+                last_error = e
+                if self._sock is not None:
+                    self._sock.close()
+                    self._sock = None
+                if attempt < tries - 1:
+                    time.sleep(interval)
+        raise LinphoneConnectionError(last_error)
 
     def _disconnect_socket(self):
         self._sock.close()
