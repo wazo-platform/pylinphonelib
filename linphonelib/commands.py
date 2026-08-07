@@ -125,6 +125,8 @@ class IsTalkingToCommand(BaseCommand):
         return True
 
     def handle_status_error(self, message):
+        if message['Reason'] == 'No current call available.':
+            return False
         raise LinphoneException(message['Reason'])
 
 
@@ -144,6 +146,8 @@ class IsRingingShowingCommand(BaseCommand):
         return True
 
     def handle_status_error(self, message):
+        if message['Reason'] == 'No current call available.':
+            return False
         raise LinphoneException(message['Reason'])
 
 
