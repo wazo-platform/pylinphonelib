@@ -1,13 +1,13 @@
 FROM debian:bookworm-slim AS builder
 
-ARG LINPHONE_VERSION=5.2
+ARG LINPHONE_VERSION=5.4
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /root
 
 RUN apt-get update -qq && \
-    apt-get install -yqq git cmake doxygen yasm nasm pkg-config libx11-dev python3 python3-six python3-pystache libasound2-dev libv4l-dev g++ && \
+    apt-get install -yqq git cmake doxygen yasm nasm pkg-config libx11-dev python3 python3-six python3-pystache libasound2-dev libv4l-dev g++ meson libxext-dev && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     git clone --single-branch --recurse-submodules --shallow-submodules --branch release/$LINPHONE_VERSION https://gitlab.linphone.org/BC/public/linphone-sdk.git linphone-sdk && \
     mkdir ./linphone-sdk/build
@@ -16,7 +16,7 @@ WORKDIR /root/linphone-sdk/build
 RUN cmake -DENABLE_UNIT_TESTS=0 -DENABLE_TOOLS=0 -DENABLE_CXX_WRAPPER=0 ..
 
 # Patch mediastream to allow to create a socket that can be bound by anyone
-RUN sed -i 's/fchmod(sock,S_IRUSR|S_IWUSR)/fchmod(sock,S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)/' ../bctoolbox/src/utils/port.c
+RUN sed -i 's/fchmod(sock, S_IRUSR | S_IWUSR)/fchmod(sock, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)/' ../bctoolbox/src/utils/port.c
 
 # Patch call-stats command to remove video infos to avoid crash
 # It should have a better way to fix it, but for tests it's good enough
@@ -26,7 +26,7 @@ RUN cmake --build . --parallel 4
 
 FROM debian:bookworm-slim
 RUN apt-get update -qq && \
-    apt-get install -yqq libasound2 libv4l-0 libx11-6 && \
+    apt-get install -yqq libasound2 libv4l-0 libx11-6 libxext6 && \
     rm -rf /var/lib/apt/lists/*
 
 # Create directory for linphone database

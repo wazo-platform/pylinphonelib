@@ -8,7 +8,7 @@ import time
 
 # NOTE: Improve using docker python library
 class LinphoneServer:
-    _DOCKER_IMG = "wazoplatform/wazo-linphone"
+    _DOCKER_IMG = "wazoplatform/wazo-linphone:5.4"
 
     def __init__(self, socket_file, mount_path, logfile):
         self._mount_path = mount_path
